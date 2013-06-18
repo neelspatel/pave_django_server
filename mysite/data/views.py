@@ -35,11 +35,18 @@ def getFeedObject(request, feed_object_id):
 	return response
 
 @csrf_exempt
+def getInsight(request, user_id):
+	try:
+		result = Recs.object.filter(user_id = User.objects.get(pk = user_id))
+	except:
+		response = HttpResponse(serializers.serialize("json", []), mimetype= "application/json")
+
+@csrf_exempt
 def getAllFeedObjects(request, user_id):
         ids = []
 	try:
-# 		response = HttpResponse(serializers.serialize("json", FeedObject.objects.filter(forUser = user_id), fields=('id')), mimetype='application/json')
-		response = HttpResponse(simplejson.dumps( [{"id": o.id} for o in FeedObject.objects.filter(forUser = user_id)]), mimetype='application/json')
+ 		response = HttpResponse(serializers.serialize("json", FeedObject.objects.filter(forUser = user_id)), mimetype='application/json')
+#		response = HttpResponse(simplejson.dumps( [{"id": o.id} for o in FeedObject.objects.filter(forUser = user_id)]), mimetype='application/json')
         except:
 	        response = HttpResponse(serializers.serialize("json", []), mimetype='application/json')
 
