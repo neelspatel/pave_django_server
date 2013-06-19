@@ -9,6 +9,7 @@ from data.models import Rec
 from data.models import ProductTypeScoreAttributes
 from data.models import ProductScore
 from data.models import UserScore
+from data.models import TrendingObject
 
 admin.site.register(Question)
 admin.site.register(ProductType)
@@ -20,3 +21,4 @@ admin.site.register(ProductTypeScoreAttributes)
 admin.site.register(ProductScore)
 admin.site.register(UserScore)
 admin.site.register(Rec)
+admin.site.register(TrendingObject)

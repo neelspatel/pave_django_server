@@ -9,5 +9,8 @@ urlpatterns = patterns('',
 	url(r'^getfeedobject/(?P<feed_object_id>\w+)/$', views.getFeedObject, name='getfeedobject'),
 	url(r'^getuser/(?P<user_id>\w+)/$', views.getUser, name='getuser'),
 	url(r'^getallfeedobjects/(?P<user_id>\w+)/$', views.getAllFeedObjects, name='getallfeedbackobjects'),
-	url(r'^getinsight/(?P<user_id>\w+)/$', views.getInsight, name = "getinsight")
+	url(r'^getinsight/(?P<user_id>\w+)/$', views.getInsight, name = "getinsight"),
+	url(r'^getlistquestions/(?P<user_id>\w+)/$', views.getListQuestions, name = "getlistquestions"),
+	url(r'^getallanswers/(?P<user_id>\w+)/$', views.getAllAnswers, name = "getallanswers")
+
 )
