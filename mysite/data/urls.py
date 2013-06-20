@@ -10,7 +10,9 @@ urlpatterns = patterns('',
 	url(r'^getuser/(?P<user_id>\w+)/$', views.getUser, name='getuser'),
 	url(r'^getallfeedobjects/(?P<user_id>\w+)/$', views.getAllFeedObjects, name='getallfeedbackobjects'),
 	url(r'^getinsight/(?P<user_id>\w+)/$', views.getInsight, name = "getinsight"),
-	url(r'^getlistquestions/(?P<user_id>\w+)/$', views.getListQuestions, name = "getlistquestions"),
-	url(r'^getallanswers/(?P<user_id>\w+)/$', views.getAllAnswers, name = "getallanswers")
+	url(r'^getlistquestions/(?P<user_id>\w+)/$', views.getListQuestionsNew, name = "getlistquestions"),	
+	url(r'^getlistquestionsnew/(?P<user_id>\w+)/$', views.getListQuestionsNew, name = "getlistquestionsnew"),
+	url(r'^getallanswers/(?P<user_id>\w+)/$', views.getAllAnswers, name = "getallanswers"),
+	url(r'^gettrendingobjects/(?P<number>\w+)/$', views.getTrendingObjects, name = "gettrendingobjects",)
 
 )

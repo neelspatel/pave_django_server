@@ -56,9 +56,8 @@ class Product(models.Model):
                 self.idInType = self.type.count
                 self.type.count = self.type.count + 1
                 self.type.save()
-                super(Product, self).save(*args, **kwargs)
-
-        def __unicode__(self):
+       
+	def __unicode__(self):
                 return (str(self.type) + ": " + self.description + " at " + self.fileURL)
 
 class User(models.Model):
@@ -66,6 +65,8 @@ class User(models.Model):
         socialIdentity = models.TextField(blank=True)
         profile = models.TextField(blank=True)
         friends = ListField()
+	names = ListField()
+	genders = ListField()
 	friendsInApp = ListField(blank=True)
 #	friends = models.CommaSeparatedIntegerField()
 
@@ -74,7 +75,7 @@ class User(models.Model):
 		super(User, self).save(*args, **kwargs)
 
 	def __unicode__(self):
-		return self.facebookID
+		return str(self.facebookID)
 
 class UserForm(ModelForm):
         class Meta:
@@ -96,11 +97,9 @@ class FeedObject(models.Model):
 	product2Count = models.IntegerField()
 	currentQuestion = models.ForeignKey(Question, related_name = 'currentQuestion')
 	questionText = models.CharField(max_length=200)
-	
-
-	
+		
 	def __unicode__(self):
-		return (self.forUser + ": " + self.image1 + " (" + str(self.product1Count) + ") " + self.image2 + " (" + str(self.product2Count) + ") for " + self.questionText)
+		return (str(self.forUser) + ": " + str(self.image1) + " (" + str(self.product1Count) + ") " + str(self.image2) + " (" + str(self.product2Count) + ") for " + str(self.questionText))
 
 class Answer(models.Model):
 	fromUser = models.ForeignKey(User)
@@ -111,7 +110,7 @@ class Answer(models.Model):
 
 	def save(self, *args, **kwargs):
 		#first check if it is about themselves; if so, we don't need to change any feed object
-		if(int(self.fromUser.pk) == self.forFacebookId):
+		if(int(self.fromUser.pk) == int(self.forFacebookId)):
 			trending_object = TrendingObject.objects.filter(Q(product1_id = self.chosenProduct) | Q(product1_id = self.wrongProduct))
 			trending_object = trending_object.filter(Q(product2_id = self.chosenProduct) | Q(product2_id = self.wrongProduct))
 			trending_object = trending_object.filter(question = self.question)
@@ -123,7 +122,8 @@ class Answer(models.Model):
 			else:
 				final_object.product2_count += 1
 
-			#now save the answer 
+			#now save the answer
+			final_object.save() 
 			super(Answer, self).save(*args, **kwargs)
 		else:
 			results = FeedObject.objects.filter(Q(product1 = self.chosenProduct) | Q(product1 = self.wrongProduct))
@@ -259,5 +259,10 @@ class TrendingObject (models.Model):
 	question_text = models.CharField(max_length = 200)
 	product1_count = models.IntegerField()
 	product2_count = models.IntegerField()
-
+	image1 = models.CharField(max_length=200, blank=True)
+	image2 = models.CharField(max_length=200, blank=True)
 	
+	def save(self, *args, **kwargs):
+                self.image1 = self.product1_id.fileURL
+		self.image2 = self.product2_id.fileURL
+                super(TrendingObject, self).save(*args, **kwargs)
