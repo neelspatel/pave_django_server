@@ -8,7 +8,7 @@ import datetime
 import calendar
 from south.modelsinspector import add_introspection_rules
 
-add_introspection_rules([], ["^mysite\.fields\.ListField"])
+add_introspection_rules([], ["^data\.models\.ListField"])
 
 #defining a list field
 class ListField(models.TextField):
@@ -47,12 +47,13 @@ class ProductType(models.Model):
 class Question(models.Model):
 	type = models.ForeignKey(ProductType)
 	text = models.TextField()
-
+	on = models.BooleanField(default=True)
 	def __unicode__(self):
 		return self.text
 
 class Product(models.Model):
         type = models.ForeignKey(ProductType)
+	on = models.BooleanField(default=True)
         description = models.TextField()
         fileURL = models.CharField(max_length=200)
         idInType = models.IntegerField()
