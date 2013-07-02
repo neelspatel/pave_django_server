@@ -96,9 +96,15 @@ def numberOfAnswersGivenForJS(request, user_id):
         response["Access-Control-Allow-Headers"] = "*"
 	return response
 
+def hasAnsweredTrending(user, product_1, product_2):
+	if Answer.objects.filter(fromUser = user).filter(chosenProduct__in [product_1, product_2]).filter(wrongProduct__in [product_1, product_2]).count() > 0:
+		return True
+	return False		
+
 
 @csrf_exempt
 def getTrendingObjects(request, user_id):
+	current_user = User.objects.get(pk=user_id)
 	unique_types = TrendingObject.objects.values_list('type', flat=True).distinct()
 	generated_objects = []
 	for cur_type in unique_types:
@@ -106,11 +112,12 @@ def getTrendingObjects(request, user_id):
 		current_list[cur_type] = []
 		cur_objects = TrendingObject.objects.filter(type = cur_type)
 		for cur_object in cur_objects:
-			cur_object.forUser = user_id
-			cur_object.question_text = cur_object.question_text.replace("%n", "you")
-			current_list[cur_type].append(model_to_dict(cur_object))
-
-		generated_objects.append(current_list)
+			if (not hasAnsweredTrending(current_user, cur_object.product1_id, cur_object.produc2_id):
+				cur_object.forUser = user_id
+				cur_object.question_text = cur_object.question_text.replace("%n", "you")
+				current_list[cur_type].append(model_to_dict(cur_object))
+		if current_list.length > 0:
+			generated_objects.append(current_list)
 
 	response = HttpResponse(json.dumps((generated_objects)), mimetype='application/json')
         response["Access-Control-Allow-Origin"] = "*"
