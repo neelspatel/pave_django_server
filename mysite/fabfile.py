@@ -7,7 +7,7 @@ env.hosts = ["ubuntu@ec2-54-245-213-191.us-west-2.compute.amazonaws.com"]
 env.key_filename = "~/keys/auth/pavekey.pem"
 
 def prepare_deploy(branch_name = "staging"):
-	test()
+#	test()
 	commit()
 	pull("master")
 	local ('git checkout master && git merge ' + branch_name)
