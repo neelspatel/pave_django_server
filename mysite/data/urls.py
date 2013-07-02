@@ -2,10 +2,7 @@ from django.conf.urls import patterns, url
 from data import views
 
 urlpatterns = patterns('',
-<<<<<<< HEAD
-=======
         url(r'^gettrainingquestions/(?P<user_id>\w+)/$', views.getListQuestionsForPersonalityType, name = "getlistquestionsnew"),
->>>>>>> dda5277d0dc1a24ac324057027d1d9ea062059c1
 	url(r'transferanswers', views.transferAnswers, name='transferAnswers'),
 	url(r'checkimage', views.checkimage, name= 'checkimage'),
         url(r'rebase', views.rebase, name= 'rebase'),
