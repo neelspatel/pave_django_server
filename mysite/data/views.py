@@ -382,6 +382,13 @@ def getAllFeedObjects(request, user_id):
 #	try:
 # 		response = HttpResponse(serializers.serialize("json", FeedObject.objects.filter(forUser = user_id), fields=('id')), mimetype='application/json')
 #	response = HttpResponse(serializers.serialize("json", objects_to_return))
+	
+	name = json.loads(User.objects.get(pk=user_id).profile)['name']
+
+	for current_object in objects_to_return:
+		current_object['question'] = current_object['question'].replace("%n", name.split()[0])
+
+
 	response = HttpResponse(json.dumps(objects_to_return), mimetype = 'application/json')
 #		response = HttpResponse(simplejson.dumps( [{"id": o.id} for o in FeedObject.objects.filter(forUser = user_id)]), mimetype='application/json')
 #        except:
