@@ -549,6 +549,30 @@ def batchCreateAnswers(request):
 	return HttpResponse("Didn't work... Probably because this wasn't a POST request")
 
 @csrf_exempt
+#this is used for the training data, so it won't create feed objects or anything else
+def createJustAnswers(request):
+        if request.method == 'POST':
+#               response = HttpResponse("Up in here, up in here", mimetype = 'application/json')
+                allAnswers = json.loads(request.POST['data'])
+
+                for currentRow in allAnswers:
+                        obj = Answer.objects.create(
+                                fromUser = User.objects.get(pk=currentRow['userID']),
+                                forFacebookId = currentRow['friend'],
+                                chosenProduct =  Product.objects.get(pk=currentRow['chosen']),
+                                wrongProduct =  Product.objects.get(pk=currentRow['wrong']),
+                                question = Question.objects.get(pk=currentRow['question'])
+                        )
+                response = HttpResponse(len(json.loads(request.POST['data'])), mimetype = 'application/json')
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+                return response
+        return HttpResponse("Didn't work... Probably because this wasn't a POST request")
+
+
+@csrf_exempt
 def transferAnswers(request):
 	now = datetime.datetime.now()
 	earlier = now - datetime.timedelta(hours = 1)
