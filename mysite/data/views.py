@@ -562,14 +562,14 @@ def transferAnswers(request):
 @csrf_exempt
 def getListQuestionsForPersonalityType(request, personality_type):
 	types_to_rec = ["sports", "lottery", "careers"]
+	products_list = []
 	for p_type in types_to_rec:
+		question = Question.objects.get(type=p_type)
 		product_type = ProductType.objects.get(text=p_type)
 		products = Products.objects.filter(type=product_type)
 		p_combs = itertools.combinations(products, 2)
-		a = []
 		for p_tuple in p_combs:
-			a.append(p_tuple)	
-			# append to an array and send back					
+			products_list.append({"question_text": question.text, "question_id": question.id, "product1": p_tuple[0].id, "product2": p_tuple[1].id, "product1_filename": p_tuple[0].fileURL, "product2_filename": p_tuple[1].fileURL})
 	return HttpResponse("sucks to suck")
 
 @csrf_exempt
