@@ -6,6 +6,9 @@ from django.db.models import Q
 import ast
 import datetime
 import calendar
+from south.modelsinspector import add_introspection_rules
+
+add_introspection_rules([], ["^data\.models\.ListField"])
 
 #defining a list field
 class ListField(models.TextField):
@@ -32,7 +35,24 @@ class ListField(models.TextField):
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
-        return self.get_db_prep_value(value)
+        return self.get_db_prep_value(valuei)
+
+class User(models.Model):
+        facebookID = models.CharField(max_length=200, primary_key=True)
+        socialIdentity = models.TextField(blank=True)
+        profile = models.TextField(blank=True)
+        friends = ListField()
+        names = ListField()
+        genders = ListField()
+        friendsInApp = ListField(blank=True)
+#       friends = models.CommaSeparatedIntegerField()
+
+        def save(self, *args, **kwargs):
+                self.friendsInApp = list ( set(self.friends).intersection(set( [int(x) for x in [ o.pk for o in User.objects.all()]] )))
+                super(User, self).save(*args, **kwargs)
+
+        def __unicode__(self):
+                return str(self.facebookID)
 
 # Create your models here
 class ProductType(models.Model):
@@ -41,15 +61,34 @@ class ProductType(models.Model):
         def __unicode__(self):
                 return self.text
 
+class UserGeneratedProduct(models.Model):
+        on = models.BooleanField(default=True)
+        fileURL = models.CharField(max_length=200)
+        user = models.ForeignKey(User)
+        def __unicode__(self):
+                return self.fileURL
+
 class Question(models.Model):
 	type = models.ForeignKey(ProductType)
 	text = models.TextField()
+	on = models.BooleanField(default=True)
+	def __unicode__(self):
+		return self.text
 
+class UserGeneratedQuestion(models.Model):
+	user = models.ForeignKey(User)
+	text = models.TextField()
+	on = models.BooleanField(default=True)
+	product1 = models.ForeignKey(UserGeneratedProduct, related_name = "product_1")		
+	product2 = models.ForeignKey(UserGeneratedProduct, related_name = "product_2")
+	product1_count = models.IntegerField(default=0)
+	product2_count = models.IntegerField(default=0)
 	def __unicode__(self):
 		return self.text
 
 class Product(models.Model):
         type = models.ForeignKey(ProductType)
+	on = models.BooleanField(default=True)
         description = models.TextField()
         fileURL = models.CharField(max_length=200)
         idInType = models.IntegerField()
@@ -63,26 +102,24 @@ class Product(models.Model):
 	def __unicode__(self):
                 return (str(self.type) + ": " + self.description + " at " + self.fileURL)
 
-class User(models.Model):
-        facebookID = models.CharField(max_length=200, primary_key=True)
-        socialIdentity = models.TextField(blank=True)
-        profile = models.TextField(blank=True)
-        friends = ListField()
-	names = ListField()
-	genders = ListField()
-	friendsInApp = ListField(blank=True)
-#	friends = models.CommaSeparatedIntegerField()
-
-	def save(self, *args, **kwargs):
-		self.friendsInApp = list ( set(self.friends).intersection(set( [int(x) for x in [ o.pk for o in User.objects.all()]] )))
-		super(User, self).save(*args, **kwargs)
-
-	def __unicode__(self):
-		return str(self.facebookID)
-
 class UserForm(ModelForm):
         class Meta:
                 model = User
+
+class QuestionQueue(models.Model):
+	toUser = models.ForeignKey(User, related_name = "to_user")
+	byUser = models.ForeignKey(User, related_name = "by_user")
+	question = models.ForeignKey(UserGeneratedQuestion)
+	on = models.BooleanField(default = True)
+	created_at = models.DateTimeField(auto_now_add = True)	
+
+class UserGeneratedAnswer(models.Model):
+	fromUser = models.ForeignKey(User, related_name = "from_user")
+	forUser = models.ForeignKey(User, related_name = "for_user")
+	chosenUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "chosen_user_gen_products")
+	wrongUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "wrong_user_gen_product")
+	question = models.ForeignKey(UserGeneratedQuestion)
+	created_at = models.DateTimeField(auto_now_add = True)
 
 class FeedObject(models.Model):
 	# need to change FBFriend1 to a comma seperated value for product 1, FBFriend2 list of people who voted for product 2
