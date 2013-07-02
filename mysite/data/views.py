@@ -26,6 +26,7 @@ import random
 import datetime
 import calendar
 import requests
+import itertools
 
 @csrf_exempt
 def checkimage(request):
@@ -560,17 +561,25 @@ def transferAnswers(request):
 	return response
 
 @csrf_exempt
-def getListQuestionsForPersonalityType(request, personality_type):
+def getListQuestionsForPersonalityType(request, user_id):
 	types_to_rec = ["sports", "lottery", "careers"]
 	products_list = []
 	for p_type in types_to_rec:
-		question = Question.objects.get(type=p_type)
 		product_type = ProductType.objects.get(text=p_type)
-		products = Products.objects.filter(type=product_type)
+		question = Question.objects.filter(type=product_type)[0]
+		products = Product.objects.filter(type=product_type)
 		p_combs = itertools.combinations(products, 2)
 		for p_tuple in p_combs:
+			if (Answer.objects.filter(forFacebookId = user_id).filter(Q(chosenProduct = p_tuple[0]) | Q(chosenProduct = p_tuple[1])).filter(Q(wrongProduct = p_tuple[0]) | Q(wrongProduct = p_tuple[1])).count()) > 0:
+				continue	
 			products_list.append({"question_text": question.text, "question_id": question.id, "product1": p_tuple[0].id, "product2": p_tuple[1].id, "product1_filename": p_tuple[0].fileURL, "product2_filename": p_tuple[1].fileURL})
-	return HttpResponse("sucks to suck")
+	
+	response = HttpResponse(json.dumps(products_list), mimetype = "application/json")
+	response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+        response["Access-Control-Max-Age"] = "1000"
+        response["Access-Control-Allow-Headers"] = "*"	
+	return response 
 
 @csrf_exempt
 def newUser(request):
