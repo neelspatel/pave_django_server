@@ -1,0 +1,15 @@
+<table border = "1">
+	<tr>
+		<th>Name</th>
+		<th>Image</th>
+	</tr>
+	{% for each_model in data %}
+   	<tr>
+		<td>
+			<h3>{{each_model.name}}</h3>
+		</td>
+		<td>
+			<img src = {{each_model.url}}>			
+		</td>
+	</tr>
+{% endfor %}

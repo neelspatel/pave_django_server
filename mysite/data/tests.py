@@ -6,8 +6,10 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from data.models import Product, ProductType, Question, Answer
+from django.test.client import Client
 
-
+#define the things that need to work in the server side
 class SimpleTest(TestCase):
     def test_basic_addition(self):
         """
