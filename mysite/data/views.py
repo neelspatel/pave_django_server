@@ -498,13 +498,13 @@ def newAnswer(request):
                 return response
         return HttpResponse()
 @csrf_exempt
-def batchCreateQuestions(requests):
+def batchCreateQuestions(request):
 	if request.method == "POST":
 		allQuestions = json.loads(request.POST["data"])
 		for currentRow in allQuestions:
 			p_type = ProductType.objects.get(text=currentRow["type"])
 			if p_type:
-				obj = Question.objects.create(
+				obj = Question.objects.get_or_create(
 					type = p_type,
 					text = currentRow["text"],
 					on=True
@@ -531,7 +531,7 @@ def batchCreateProducts(request):
 		for currentRow in allProducts:
 			product_type = ProductType.objects.get(text = currentRow['type'])
 			if product_type:
-				obj = Product.objects.create(
+				obj = Product.objects.get_or_create(
 					type = product_type,
 					description = currentRow["description"],
 					fileURL = currentRow['filename'],
