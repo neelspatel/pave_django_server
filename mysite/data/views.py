@@ -497,6 +497,25 @@ def newAnswer(request):
                 response["Access-Control-Allow-Headers"] = "*"
                 return response
         return HttpResponse()
+@csrf_exempt
+def batchCreateQuestions(request):
+	if request.method == "POST":
+		allQuestions = json.loads(request.POST["data"])
+		for currentRow in allQuestions:
+			p_type = ProductType.objects.get(text=currentRow["type"])
+			if p_type:
+				obj = Question.objects.get_or_create(
+					type = p_type,
+					text = currentRow["text"],
+					on=True
+				)
+		response = HttpResponse(len(json.loads(request.POST["data"])), mimetype='application/json')
+		response["Access-Control-Allow-Origin"] = "*"
+		response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+		response["Access-Control-Max-Age"] = '1000'
+		response["Access-Control-Allow-Headers"] = "*"
+		return response
+	return HttpResponse("Request was not a POST")
 
 @csrf_exempt
 def batchCreateProducts(request):
@@ -512,7 +531,7 @@ def batchCreateProducts(request):
 		for currentRow in allProducts:
 			product_type = ProductType.objects.get(text = currentRow['type'])
 			if product_type:
-				obj = Answer.objects.create(
+				obj = Product.objects.get_or_create(
 					type = product_type,
 					description = currentRow["description"],
 					fileURL = currentRow['filename'],
