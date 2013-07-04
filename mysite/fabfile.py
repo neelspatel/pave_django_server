@@ -22,6 +22,10 @@ def push(branch_name):
 def test():
 	local ('python manage.py test data')
 
+def test_production():
+	with cd(remote_code_dir):
+		run("python manage.py test data")	
+
 def commit():
     	local("git add -p")
 	local("git commit")
