@@ -54,6 +54,12 @@ class AnswerFactory(factory.Factory):
 # get list of questions returns something of 100 objects long
 class GetListQuestionsTest(TestCase):
 	def setUp(self):
+	#	self.type = ProductType.objects.create(text = "male_shoes", count = 0)
+	#	self.product1 = Product.objects.create(type = self.type, on = True, description = "yessir", fileURL = "image1.jpg")
+	#A	self.product2 = Product.objects.create(type = self.type, on = True, description = "yessir", fileURL = "image2.jpg")
+#		self.user = User.objects.create(facebookID='551733910', profile = '', socialIdentity = '', friends = ['123'], names = ["Side"], genders = ["male"], friendsInApp = [])
+	#	self.question = Question.objects.create(type = self.type, text = "Which one", on=True)
+	#	self.answer = Answer.objects.create(forFacebookId = '1', chosenProduct = self.product1, wrongProduct = self.product2, fromUser = self.user, question= self.question)
 		self.client = Client()
 		self.user = UserFactory()
 		self.product=ProductFactory()
@@ -61,10 +67,10 @@ class GetListQuestionsTest(TestCase):
 		self.answer=AnswerFactory()
 				 
 	def test_get_questions(self):
-		url = 'getlistquestionsnew/' + self.user.facebookID
+		url = '/data/getlistquestionsnew/' + self.user.facebookID + '/'
 		response = self.client.get(url)
-		self.assertEqual('1', self.question.text)
-
+		self.assertEqual(200, response.status_code)
+		self.assertContains(response, self.question.text)
 #define the things that need to work in the server side
 class SimpleTest(TestCase):
     def test_basic_addition(self):
