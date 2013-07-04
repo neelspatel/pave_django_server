@@ -28,7 +28,8 @@ def test_production():
 
 def commit():
     	local("git add -p")
-	local("git commit")
+	with settings(warn_only = True):
+		local("git commit")
 
 
 def deploy():
