@@ -105,7 +105,10 @@ def hasAnsweredTrending(user, product_1, product_2):
 @csrf_exempt
 def getTrendingObjects(request, user_id):
 	current_user = User.objects.get(pk=user_id)
+
+	# all of the types in the current trending objects
 	unique_types = TrendingObject.objects.values_list('type', flat=True).distinct()
+	# placeholeder to return
 	generated_objects = []
 	for cur_type in unique_types:
 		current_list = {}
@@ -122,7 +125,8 @@ def getTrendingObjects(request, user_id):
 				to_delete.append(p_type)
 		for to_d in to_delete:
 			current_list.pop(to_d, None)
-		generated_objects.append(current_list)
+		if current_list:
+			generated_objects.append(current_list)
 
 	response = HttpResponse(json.dumps((generated_objects)), mimetype='application/json')
         response["Access-Control-Allow-Origin"] = "*"
