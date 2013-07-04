@@ -23,7 +23,8 @@ def test():
 	local ('python manage.py test data')
 
 def commit():
-    	local("git add -p && git commit")
+    	local("git add -p")
+	local("git commit")
 
 
 def deploy():
