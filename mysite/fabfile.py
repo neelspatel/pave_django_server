@@ -35,7 +35,7 @@ def commit():
 def deploy():
 	with cd(remote_code_dir):
 		sudo("git pull origin master")
-	       #sudo("python manage.py migrate data")
+	       	sudo("python manage.py migrate data")
 		sudo("service apache2 restart")
 	
 def testFab():
