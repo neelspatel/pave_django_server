@@ -28,17 +28,17 @@ import datetime
 import calendar
 import requests
 import itertools
+from process_images import process_image
 
+@csrf_exempt
 def uploadUGProductImage(request):
 	if request.method == 'POST':
-		request.POST["product1_filename"]
-		request.POST["product2_filename"]
-		request.POST["product1_url"]
-		request.POST["product2_url"]
-		
+		process_image(request.POST["product1_url"], request.POST["product1_filename"])
+		process_image(request.POST["product2_url"], request.POST["product2_filename"])
 		# use process_images.py
-
+		return HttpResponse("looks like it worked")
 	return HttpResponse("Not a post request")
+
 @csrf_exempt
 def createUGQuestion(request, user_id):
 	current_user = User.objects.get(pk=user_id)
@@ -50,9 +50,10 @@ def createUGQuestion(request, user_id):
 		# need url for product 1, url for product 2, description for product1/2, question text, 
 		p1_url = request.POST['product1_url']
 		p2_url = request.POST['product2_url']
-		url = '54.244.251.104/uploadugproduct'
+		url = 'http://54.244.251.104/data/uploadugproduct'
 		p1_filename = user_id + "_1_%s.jpg" % datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 		p2_filename = user_id + "_2_%s.jpg" % datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+			
 		r = requests.post(url, data = {"product1_filename": p1_filename, "product2_filename": p2_filename, "product2_url": p2_url, "product1_url": p1_url})
 				
 		# add to all of friends question queues 
