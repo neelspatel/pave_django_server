@@ -65,7 +65,8 @@ class UserGeneratedProduct(models.Model):
         on = models.BooleanField(default=True)
         fileURL = models.CharField(max_length=200)
         user = models.ForeignKey(User)
-        def __unicode__(self):
+        description = models.CharField(max_length=200, null=True)
+	def __unicode__(self):
                 return self.fileURL
 
 class Question(models.Model):
