@@ -44,6 +44,7 @@ class User(models.Model):
         friends = ListField()
         names = ListField()
         genders = ListField()
+	mutual_friend_count = ListField(blank=True)
         friendsInApp = ListField(blank=True)
 #       friends = models.CommaSeparatedIntegerField()
 
