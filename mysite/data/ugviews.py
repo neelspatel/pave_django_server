@@ -55,8 +55,20 @@ def createUGQuestion(request, user_id):
 		p2_filename = user_id + "_2_%s.jpg" % datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 			
 		r = requests.post(url, data = {"product1_filename": p1_filename, "product2_filename": p2_filename, "product2_url": p2_url, "product1_url": p1_url})
-				
-		# add to all of friends question queues 
 		
+		# create the new products
+  
+		product1 = UserGeneratedProduct.objects.create(fileURL = p1_url, on = True, user = current_user, description = request.POST["product1_description"])				
+	
+		product2 = UserGeneratedProduct.objects.create(fileURL = p2_url, on = True, user = current_user, description = request.POST["product2_description"])				
+		ug_question = UserGeneratedQuestion.objects.create(user = current_user, text = request.POST["question_text"], product1 = product1, product2 = product2, on = True)
+	 	
+		for friend_id in current_user.friendsInApp:
+			current_friend = User.objects.get(pk = friend_id)
+			current_friend_qq = QuestionQueue.objects.create(toUser=current_friend, byUser=current_user, question=ug_question, on=True)				
+		
+		return HttpResponse("looks like it worked")
+
+	return HttpResponse("Not a POST request")
 	
 
