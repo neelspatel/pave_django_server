@@ -7,18 +7,17 @@ import cStringIO
 import datetime
 import subprocess
 
-def process_image(url):
+def process_image(url, filename):
 	file = cStringIO.StringIO(urllib2.urlopen(url).read())
 	img = Image.open(file)
 	os.chdir("tmp")
-	filename = "ugproduct_%s.jpg" % datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-	img.save(filename)
+	old_filename = "old_" + filname
+	img.save(old_filename)
 	# process image here
-	new_filename = "processed_" + filename
-	subprocess.call(["convert", filename, "-resize", "100x100^","-unsharp", "2x0.5+0.7+0", "-quality", "98", "-gravity", "center", "-extent", "100x100", new_filename])
+	new_filename = filename
+	subprocess.call(["convert", old_filename, "-resize", "100x100^","-unsharp", "2x0.5+0.7+0", "-quality", "98", "-gravity", "center", "-extent", "100x100", new_filename])
 	upload_image(new_filename)
-	upload_image(filename)
-	#os.remove(filename)
+	os.remove(old_filename)
 
 def upload_image(filename):
 	con = S3Connection('AKIAJ5NFFKY3KUKBRTPQ','Z3heEPRxIvB0KXxLEaYZ69rpdOsQYXx2cwfprHpf')
