@@ -657,17 +657,19 @@ def newUser(request):
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
         response["Access-Control-Max-Age"] = "1000"
         response["Access-Control-Allow-Headers"] = "*"
-	#return response
+#	return response
 
 	if request.method == 'POST':
-		obj, created = User.objects.get_or_create(facebookID=request.POST['id_facebookID'])
+		obj, created = User.objects.get_or_create(facebookID=int(request.POST['id_facebookID']))
 #		obj = User.objects.create()		
-		obj.facebookID = request.POST['id_facebookID']
+		obj.facebookID = int(request.POST['id_facebookID'])
 		#obj.socialIdentity =  request.POST['id_socialIdentity']
 		obj.profile =  request.POST['id_profile']
 		obj.friends =  request.POST['id_friends']
 		obj.genders = request.POST['id_genders']
 		obj.names = request.POST['id_names']
+		if request.POST['id_mutual_friend_count']:
+			obj.mutual_friend_count = request.POST['id_mutual_friend_count']
 		obj.save()
 
 #		form = UserForm(request.POST)
