@@ -232,97 +232,6 @@ def getListQuestions(request, user_id):
 	response["Access-Control-Allow-Headers"] = "*"
         return response
 
-@csrf_exempt
-def newGetListQuestions(request, user_id):
-	
-	#get all feed items by friends
-	current_user = User.objects.get(pk=user_id)
-	list_friends_objects = []
-
-	num_new_objects = 100
-	for x in range(num_new_objects):
-		current_friend = choice(current_user.friends)
-
-		name = ""
-		while name == "":
-			if len(current_user.friends) < 100:	
-				index = random.randint(0,len(current_user.friends) - 1)
-			else:
-				decision = random.random()
-				if decision < 0.8:
-					index = random.randint(0, 100-1)
-				else:
-					index = random.randint(100,len(current_user.friends) - 1)
-
-	                current_friend = str(current_user.friends[index])
-        	        name = current_user.names[index]
-			#checks if it is a valid name (in a very hackish way)
-			if name != name.decode('utf8'):
-				name = ""
-			
-
-		#gets a random quesiton
-        	num_questions = Question.objects.count() -1
-        	currentQuestion = Question.objects.all()[randint(0,num_questions)]
-
-        	#gets the type we're dealing with
-        	current_type = currentQuestion.type
-
-        	#now gets two random products in that type
-        	num_products = current_type.count - 1
-        	index1 = randint(1, num_products)  
-        	index2 = randint(1, num_products) -1 
-       		if index1 == index2: index2 = num_products
-
-       		currentProduct1 = Product.objects.get(type = current_type, idInType = index1)
-	        currentProduct2 = Product.objects.get(type = current_type, idInType = index2)
-
-		old_objects = FeedObject.objects.filter(forUser=current_friend, product1=currentProduct1, product2=currentProduct2, currentQuestion=currentQuestion) 
-
-		current_object = {}
-                if len(old_objects)==0:
- #                       current_object = FeedObject()
-                        #creates the object to save it in the dictionary
-                        current_object['product1'] = currentProduct1.id
-                        current_object['product2'] = currentProduct2.id
-                        current_object['image1'] = currentProduct1.fileURL
-                        current_object['image2'] = currentProduct2.fileURL
-                        current_object['fbFriend1'] = []
-                        current_object['fbFriend2'] = []
-                        current_object['product1Count'] = 0
-                        current_object['product2Count'] = 0
-                        current_object['currentQuestion'] = currentQuestion.id
-                        current_object['questionText'] = currentQuestion.text
-                else:
-#                        current_object = old_objects[0]
-                        current_object['product1'] = old_objects[0].product1.id
-                        current_object['product2'] = old_objects[0].product2.id
-                        current_object['image1'] = old_objects[0].image1
-                        current_object['image2'] = old_objects[0].image2
-                        current_object['fbFriend1'] = old_objects[0].fbFriend1
-                        current_object['fbFriend2'] = old_objects[0].fbFriend2
-                        current_object['product1Count'] = old_objects[0].product1Count
-                        current_object['product2Count'] = old_objects[0].product2Count
-                        current_object['currentQuestion'] = old_objects[0].currentQuestion.id
-                        current_object['questionText'] = old_objects[0].questionText
-
-		try:
-			current_object['questionText'] = current_object['questionText'].replace("%n", name.split()[0])
-		except:
-			current_object['questionText'] = current_object['questionText']
-
-		current_object['name'] = name
-		current_object['friend'] = current_friend
-		
-		list_friends_objects.append(current_object)
-
-	response = HttpResponse(json.dumps(list_friends_objects), mimetype='application/json')
-	response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-        response["Access-Control-Max-Age"] = "1000"
-        response["Access-Control-Allow-Headers"] = "*"
-        return response
-
 def random_combinations(iterable, length, num):
 	pool = tuple(iterable)
 	result = []
@@ -358,7 +267,7 @@ def getFriendWithValidName(current_user, gender = None):
 	return {"name": name, "facebook_id": current_friend}
 
 @csrf_exempt
-def updateQuestionObjectQueue(user_id, count=100, replace=False):
+def updateQuestionObjectQueue(current_user, count=100, replace=False):
 	# maybe very slow
 	q_list = Question.objects.filter(on = True).order_by("?")[:count]
 	# get unique product types
@@ -372,7 +281,6 @@ def updateQuestionObjectQueue(user_id, count=100, replace=False):
 		
 	if p_types_products:
 		# delete all of the questions for this user
-		current_user = User.objects.get(pk=user_id)
 		if replace:
 			QuestionObject.objects.filter(toUser=current_user).delete()
 			
@@ -383,15 +291,26 @@ def updateQuestionObjectQueue(user_id, count=100, replace=False):
 			# deal with male female
 			if question.text.endswith("_male"):
 				current_friend = getFriendWithValidName(current_user, "male")
-			elif questions.text.endswith("female"):
+			elif question.text.endswith("female"):
 				 current_friend = getFriendWithValidName(current_user, "fenale")
 			else:
 				current_friend = getFriendWithValidName(current_user)
 			p_tuple = p_types_products[question.type][0].pop(0)
 			product1 = p_tuple[0]
 			product2 = p_tuple[1]
-			p1_count = 0
+					
+			# get feed objects for count
+			old_objects = FeedObject.objects.filter(forUser=current_friend, product1=currentProduct1, product2=currentProduct2, currentQuestion=currentQuestion) 
+                	p1_count = 0
 			p2_count = 0
+			if not(len(old_objects)==0):
+				p1_count = old_objects[0].product1Count
+				p2_count = old_objects[0].product2Count
+			
+			try:
+				question_text = question.text.replace("%n", name.split()[0])
+			except:
+				question_text = question.text
 
 			q_q = QuestionObject.objects.create(
 				toUser = current_user,
@@ -402,14 +321,53 @@ def updateQuestionObjectQueue(user_id, count=100, replace=False):
 				image1 = product1.fileURL,
 				image2 = product2.fileURL,
 				currentQueston = question,
-				questionText = question.text,
+				questionText = question_text,
 				product1Count = p1_count,
 				product2Count = p2_count
 			)	
 		return HttpResponse("Seems good")					
-		
 	return HttpResponse("Hey what's up")	
 
+@csrf_exempt
+def newGetListQuestions(request, user_id):
+	NEW_OBJECTS = 100	
+	#get all feed items by friends
+	current_user = User.objects.get(pk=user_id)
+	# get Question Objects
+	num_q_objects = QuestionObject.objects.filter(toUser=current_user).count()
+	if num_q_objects < NUM_OBJECTS:
+		updateQuestionObjectQueue(current_user, NEW_OBJECTS)
+	q_objects = QuestionObject.objects.filter(toUser=current_user)[:NEW_OBJECTS]
+	list_question_objects = []
+	for q in q_objects:
+		json_q = {
+			"fbFriend1": [], 
+			"fbFriend2": [], 
+			"product1Count": q.product1Count, 
+			"product2Count": q.product2Count, 
+			"currentQuestion": q.currentQuestion,
+			"name": q.aboutFriendName,
+			"product1": q.product1,
+			"product2": q.product2,
+			"image1": q.image1,
+			"image2": q.image2,
+			"friend": q.aboutFriend,
+			"questionText": q.questionText
+		}
+		list_question_objects.append(json_q)
+		# delete the q_object
+		q.delete()
+
+	response = HttpResponse(json.dumps(list_question_objects), mimetype='application/json')
+	response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+        response["Access-Control-Max-Age"] = "1000"
+        response["Access-Control-Allow-Headers"] = "*"
+        return response
+
+@csrf_exempt
+def getListQuestionsForGroup(request, user_id):
+	return HttpResponse("Not Implemented")
 @csrf_exempt
 def getListQuestionsNew(request, user_id):
 	# do some cool shit here 
