@@ -123,21 +123,40 @@ class UserGeneratedAnswer(models.Model):
 	question = models.ForeignKey(UserGeneratedQuestion)
 	created_at = models.DateTimeField(auto_now_add = True)
 
+class QuestionObject(models.Model):
+	# need to change FBFriend1 to a comma seperated value for product 1, FBFriend2 list of people who voted for product 2
+	toUser = models.ForeignKey(User, related_name = "qo_to_user")
+	aboutFriend = models.CharField(max_length=200)
+	aboutFriendName = models.CharField(max_length = 200)
+	product1 = models.ForeignKey(Product, related_name = 'qo_product1')
+	image1 = models.CharField(max_length=200)
+	product2 = models.ForeignKey(Product, related_name = 'qo_product2')
+	image2 = models.CharField(max_length=200)
+	product1Count = models.IntegerField()
+	product2Count = models.IntegerField()
+	currentQuestion = models.ForeignKey(Question, related_name = 'qo_currentQuestion')
+	questionText = models.CharField(max_length=200)
+	createdAt = models.DateTimeField(auto_now_add = True)
+
+	def __unicode__(self):
+		return (str(self.toUser) + ": " + str(self.image1) + ", " + str(self.image2) + ": " + str(self.questionText))
+
+
 class FeedObject(models.Model):
 	# need to change FBFriend1 to a comma seperated value for product 1, FBFriend2 list of people who voted for product 2
 	forUser = models.CharField(max_length=200)
 #	forUser = models.ForeignKey(User, related_name = 'forUser')
-	product1 = models.ForeignKey(Product, related_name = 'product1')
+	product1 = models.ForeignKey(Product, related_name = 'fo_product1')
 	image1 = models.CharField(max_length=200)
 	fbFriend1 = ListField()
 #	fbFriend1 = models.ForeignKey(User, related_name = 'fbFriend1')
 	product1Count = models.IntegerField()
-	product2 = models.ForeignKey(Product, related_name = 'product2')
+	product2 = models.ForeignKey(Product, related_name = 'fo_product2')
 	image2 = models.CharField(max_length=200)
 	fbFriend2 = ListField(blank=True)
 #	fbFriend2 = models.ForeignKey(User, related_name = 'fbFriend2', null = True, blank = True)
 	product2Count = models.IntegerField()
-	currentQuestion = models.ForeignKey(Question, related_name = 'currentQuestion')
+	currentQuestion = models.ForeignKey(Question, related_name = 'fo_currentQuestion')
 	questionText = models.CharField(max_length=200)
 	updatedAt = models.IntegerField()
 

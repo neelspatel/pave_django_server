@@ -20,7 +20,10 @@ urlpatterns = patterns('',
 	url(r'^getallfeedobjects/(?P<user_id>\w+)/$', views.getAllFeedObjects, name='getallfeedbackobjects'),
 	url(r'^getinsight/(?P<user_id>\w+)/$', views.getInsight, name = "getinsight"),
 	url(r'^getlistquestions/(?P<user_id>\w+)/$', views.getListQuestionsNew, name = "getlistquestions"),	
+	# endpoints for getting questions
 	url(r'^getlistquestionsnew/(?P<user_id>\w+)/$', views.getListQuestionsNew, name = "getlistquestionsnew"),
+	url(r'^newgetlistquestions/(?P<user_id>\w+)/$', views.newGetListQuestions, name = "newgetlistquestions"),
+	
 	url(r'^getallanswers/(?P<user_id>\w+)/$', views.getAllAnswers, name = "getallanswers"),
 	url(r'^gettrendingobjects/(?P<user_id>\w+)/$', views.getTrendingObjects, name = "gettrendingobjects",),
 	url(r'^numberofnewobjects/(?P<user_id>\w+)/(?P<time_since>\w+)/$', views.numberOfNewObjects, name = "number of new objects",),
