@@ -369,8 +369,23 @@ def newGetListQuestions(request, user_id):
         return response
 
 @csrf_exempt
-def getListQuestionsForGroup(request, user_id):
-	return HttpResponse("Not Implemented")
+def getListQuestionsForGroup(request, user_id):	
+	return HttpResponse("Not Implemented", status=500)
+
+@csrf_exempt
+def updateTopFriends(request, user_id):
+	if request.method == 'POST':
+		try:
+			current_user = User.objects.get(pk=user_id)
+		except:
+			return HttpResponse("Not a valid user")
+		
+		top_friends = json.loads(request.POST["top_friends"])
+		current_user.topFriends = top_friends
+		current_user.save()
+		return HttpResponse("updated top friends")
+	else:
+		return HttpResponse("Not a POST request")
 
 @csrf_exempt
 def getListQuestionsNew(request, user_id):
