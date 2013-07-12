@@ -2,10 +2,11 @@ from django.conf.urls import patterns, url
 from data import views, ugviews
 
 urlpatterns = patterns('',
+        url(r'^imagesearch/(?P<query>\w+)/$', views.imagesearch, name = "imagesearch"),
 	url(r'uploadugproduct', ugviews.uploadUGProductImage, name = "uploadProductImage"),
         url(r'^gettrainingquestions/(?P<user_id>\w+)/$', views.getListQuestionsForPersonalityType, name = "getlistquestionsnew"),
 	url(r'transferanswers', views.transferAnswers, name='transferAnswers'),
-        url(r'^updatetopfriends/(?P<user_id>\w+)/$', ugviews.updateTopFriends, name = "createUGQuestion"),
+        url(r'^updatetopfriends/(?P<user_id>\w+)/$', views.updateTopFriends, name = "createUGQuestion"),
         url(r'^createugquestion/(?P<user_id>\w+)/$', ugviews.createUGQuestion, name = "createUGQuestion"),
 	url(r'checkimage', views.checkimage, name= 'checkimage'),
         url(r'rebase', views.rebase, name= 'rebase'),

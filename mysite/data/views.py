@@ -29,6 +29,47 @@ import calendar
 import requests
 import itertools
 from collections import Counter
+import httplib2
+import oauth2
+import time
+
+@csrf_exempt
+def imagesearch(request, query):
+        OAUTH_CONSUMER_KEY = "dj0yJmk9N2ZZbHpHMXRqNjdEJmQ9WVdrOVMxazNaelZuTmpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD05Zg--"
+        OAUTH_CONSUMER_SECRET = "3fa34549164ea42f2c3afa510156a2311262f4e0"
+
+        url = "http://yboss.yahooapis.com/ysearch/images?q="+query
+        consumer = oauth2.Consumer(key=OAUTH_CONSUMER_KEY,secret=OAUTH_CONSUMER_SECRET)
+        params = {
+                'oauth_version': '1.0',
+                'oauth_nonce': oauth2.generate_nonce(),
+                'oauth_timestamp': int(time.time()),
+        }
+
+        oauth_request = oauth2.Request(method='GET', url=url, parameters=params)
+        oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, None)
+        oauth_header=oauth_request.to_header(realm='yahooapis.com')
+
+        # Get search results
+        http = httplib2.Http()
+        resp, content = http.request(url, 'GET', headers=oauth_header)
+
+        #parses out the data
+        try:
+                parsed = json.loads(content)
+                results = parsed["bossresponse"]["images"]["results"]
+
+
+                response = HttpResponse(json.dumps(results), mimetype='application/json')
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+
+                return response
+
+        except:
+                return HttpResponse("Sorry, error in getting the data")
 
 @csrf_exempt
 def checkimage(request):
