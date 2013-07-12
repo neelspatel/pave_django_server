@@ -237,7 +237,7 @@ def random_combinations(iterable, length, num):
 	result = []
 	for i in range(num):
 		indices = sorted(random.sample(xrange(length), 2))
-		result.append(pool[i] for i in indices)
+		result.append(list(pool[i] for i in indices))
 	return result
 
 # get the friends facebook id and name
@@ -275,16 +275,17 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 	p_types_products = {}
 	for p_type, count in p_types_counter.iteritems():
 		 # get a list of pairs of two random products of the given product time
-		curr_len = Products.objects.filter(type=p_type).filter(on=True).count()
-		curr_products = Products.objects.filter(type=p_type).filter(on=True)
+		curr_len = Product.objects.filter(type=p_type).filter(on=True).count()
+		curr_products = Product.objects.filter(type=p_type).filter(on=True)
 		p_types_products[p_type] = random_combinations(curr_products, curr_len, (count * 2))
-		
+				
 	if p_types_products:
 		# delete all of the questions for this user
 		if replace:
 			QuestionObject.objects.filter(toUser=current_user).delete()
 			
 		# we got a non-empty dictionary
+		qq_list = []
 		for question in q_list:
 			# add a new object to the QuestionObject for the current user
 			# package for the client			
@@ -295,12 +296,12 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 				 current_friend = getFriendWithValidName(current_user, "fenale")
 			else:
 				current_friend = getFriendWithValidName(current_user)
-			p_tuple = p_types_products[question.type][0].pop(0)
+			p_tuple = p_types_products[question.type].pop(0)
 			product1 = p_tuple[0]
 			product2 = p_tuple[1]
 					
 			# get feed objects for count
-			old_objects = FeedObject.objects.filter(forUser=current_friend, product1=currentProduct1, product2=currentProduct2, currentQuestion=currentQuestion) 
+			old_objects = FeedObject.objects.filter(forUser=current_friend, product1=product1, product2=product2, currentQuestion=question) 
                 	p1_count = 0
 			p2_count = 0
 			if not(len(old_objects)==0):
@@ -308,7 +309,7 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 				p2_count = old_objects[0].product2Count
 			
 			try:
-				question_text = question.text.replace("%n", name.split()[0])
+				question_text = question.text.replace("%n", current_friend["name"].split()[0])
 			except:
 				question_text = question.text
 
@@ -320,24 +321,26 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 				product2 = product2,
 				image1 = product1.fileURL,
 				image2 = product2.fileURL,
-				currentQueston = question,
+				currentQuestion = question,
 				questionText = question_text,
 				product1Count = p1_count,
 				product2Count = p2_count
 			)	
-		return HttpResponse("Seems good")					
-	return HttpResponse("Hey what's up")	
+			qq_list.append(qq)
+		return qq_list
 
 @csrf_exempt
 def newGetListQuestions(request, user_id):
-	NEW_OBJECTS = 100	
+	NUM_OBJECTS = 100	
 	#get all feed items by friends
 	current_user = User.objects.get(pk=user_id)
 	# get Question Objects
 	num_q_objects = QuestionObject.objects.filter(toUser=current_user).count()
 	if num_q_objects < NUM_OBJECTS:
-		updateQuestionObjectQueue(current_user, NEW_OBJECTS)
-	q_objects = QuestionObject.objects.filter(toUser=current_user)[:NEW_OBJECTS]
+		q_objects = updateQuestionObjectQueue(current_user, NUM_OBJECTS)
+	else:
+		q_objects = QuestionObject.objects.filter(toUser=current_user)[:NUM_OBJECTS]
+	
 	list_question_objects = []
 	for q in q_objects:
 		json_q = {
@@ -345,10 +348,10 @@ def newGetListQuestions(request, user_id):
 			"fbFriend2": [], 
 			"product1Count": q.product1Count, 
 			"product2Count": q.product2Count, 
-			"currentQuestion": q.currentQuestion,
+			"currentQuestion": q.currentQuestion.id,
 			"name": q.aboutFriendName,
-			"product1": q.product1,
-			"product2": q.product2,
+			"product1": q.product1.id,
+			"product2": q.product2.id,
 			"image1": q.image1,
 			"image2": q.image2,
 			"friend": q.aboutFriend,
@@ -368,6 +371,7 @@ def newGetListQuestions(request, user_id):
 @csrf_exempt
 def getListQuestionsForGroup(request, user_id):
 	return HttpResponse("Not Implemented")
+
 @csrf_exempt
 def getListQuestionsNew(request, user_id):
 	# do some cool shit here 
