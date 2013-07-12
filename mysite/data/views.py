@@ -326,7 +326,7 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 				product1Count = p1_count,
 				product2Count = p2_count
 			)	
-			qq_list.append(qq)
+			qq_list.append(q_q)
 		return qq_list
 
 @csrf_exempt
