@@ -82,6 +82,12 @@ class GetListQuestionsTest(TestCase):
 		self.assertEqual(200, response.status_code)
 		self.assertContains(response, self.question.text)
 
+	def test_get_questions_new(self):
+		url = '/data/newgetlistquestions/' + self.user.facebookID + '/'
+		response = self.client.get(url)
+		self.assertEqual(200, response.status_code)
+		self.assertContains(response, self.question.text)
+
 	def test_get_trending(self):	
 		url = '/data/gettrendingobjects/' + self.user.facebookID + '/'
 		response = self.client.get(url)
