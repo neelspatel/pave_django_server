@@ -32,6 +32,7 @@ from collections import Counter
 import httplib2
 import oauth2
 import time
+from data.notif_views import addNotification
 
 @csrf_exempt
 def imagesearch(request, query):
