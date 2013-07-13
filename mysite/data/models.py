@@ -56,6 +56,12 @@ class User(models.Model):
         def __unicode__(self):
                 return str(self.facebookID)
 
+class Notification(models.Model):
+	user = models.ForeignKey(User)
+	number_answers = models.IntegerField(default=0)
+	number_ug_answers = models.IntegerField(default=0)
+	number_recs = models.IntegerField(default=0)
+		
 # Create your models here
 class ProductType(models.Model):
 	text = models.CharField(max_length=200)

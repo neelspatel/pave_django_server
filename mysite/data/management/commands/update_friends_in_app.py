@@ -14,14 +14,15 @@ class Command(BaseCommand):
 		# force evaluation of query set
 		user_list = list(users)
 		user_id_list = [user.facebookID for user in user_list]
+		self.stdout.write(user_id_list[0])
 		for user in user_list:
 			friends = user.friends 
-			current_friend_in_app = []
+			current_friends_in_app = []
 			for friend in friends:
 				if str(friend) in user_id_list:
 					 current_friends_in_app.append(friend)
 			# make sure that it is unique
-			current_friends_in_app = list(set(current_friends_in_app))
-			user.friendsInApp = current_friends_in_app
+			un_friends_in_app = list(set(current_friends_in_app))
+			user.friendsInApp = un_friends_in_app
 			user.save()
 
