@@ -17,6 +17,7 @@ from data.models import Answer
 from data.models import ListField
 from data.models import TrendingObject
 from data.models import ProductType
+from data.models import QuestionObject
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
@@ -27,6 +28,49 @@ import datetime
 import calendar
 import requests
 import itertools
+from collections import Counter
+import httplib2
+import oauth2
+import time
+from data.notif_views import addNotification
+
+@csrf_exempt
+def imagesearch(request, query):
+        OAUTH_CONSUMER_KEY = "dj0yJmk9N2ZZbHpHMXRqNjdEJmQ9WVdrOVMxazNaelZuTmpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD05Zg--"
+        OAUTH_CONSUMER_SECRET = "3fa34549164ea42f2c3afa510156a2311262f4e0"
+
+        url = "http://yboss.yahooapis.com/ysearch/images?q="+query
+        consumer = oauth2.Consumer(key=OAUTH_CONSUMER_KEY,secret=OAUTH_CONSUMER_SECRET)
+        params = {
+                'oauth_version': '1.0',
+                'oauth_nonce': oauth2.generate_nonce(),
+                'oauth_timestamp': int(time.time()),
+        }
+
+        oauth_request = oauth2.Request(method='GET', url=url, parameters=params)
+        oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, None)
+        oauth_header=oauth_request.to_header(realm='yahooapis.com')
+
+        # Get search results
+        http = httplib2.Http()
+        resp, content = http.request(url, 'GET', headers=oauth_header)
+
+        #parses out the data
+        try:
+                parsed = json.loads(content)
+                results = parsed["bossresponse"]["images"]["results"]
+
+
+                response = HttpResponse(json.dumps(results), mimetype='application/json')
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+
+                return response
+
+        except:
+                return HttpResponse("Sorry, error in getting the data")
 
 @csrf_exempt
 def checkimage(request):
@@ -229,6 +273,161 @@ def getListQuestions(request, user_id):
         response["Access-Control-Max-Age"] = "1000"
 	response["Access-Control-Allow-Headers"] = "*"
         return response
+
+def random_combinations(iterable, length, num):
+	pool = tuple(iterable)
+	result = []
+	for i in range(num):
+		indices = sorted(random.sample(xrange(length), 2))
+		result.append(list(pool[i] for i in indices))
+	return result
+
+# get the friends facebook id and name
+# STILL DONE WITH MUTUAL FRIENDS UPDATE TO ACCOUNT FOR NEW PROBS
+def getFriendWithValidName(current_user, gender = None):
+	MUTUAL_FRIEND_PROB = 0.8
+	name = ""
+	while name == "":
+		if len(current_user.friends) < 100:	
+			index = random.randint(0,len(current_user.friends) - 1)
+		else:
+			decision = random.random()
+			if decision < MUTUAL_FRIEND_PROB:
+				index = random.randint(0, 100-1)
+			else:
+				index = random.randint(100,len(current_user.friends) - 1)
+		if gender:
+			if not (gender == str(current_user.genders[index])):
+				name = ""
+				continue
+		current_friend = str(current_user.friends[index])
+		name = current_user.names[index]
+		#checks if it is a valid name (in a very hackish way)
+		if name != name.decode('utf8'):
+			name = ""
+
+	return {"name": name, "facebook_id": current_friend}
+
+@csrf_exempt
+def updateQuestionObjectQueue(current_user, count=100, replace=False):
+	# maybe very slow
+	q_list = Question.objects.filter(on = True).order_by("?")[:count]
+	# get unique product types
+	p_types_counter = Counter([question.type for question in q_list])
+	p_types_products = {}
+	for p_type, count in p_types_counter.iteritems():
+		 # get a list of pairs of two random products of the given product time
+		curr_len = Product.objects.filter(type=p_type).filter(on=True).count()
+		curr_products = Product.objects.filter(type=p_type).filter(on=True)
+		p_types_products[p_type] = random_combinations(curr_products, curr_len, (count * 2))
+				
+	if p_types_products:
+		# delete all of the questions for this user
+		if replace:
+			QuestionObject.objects.filter(toUser=current_user).delete()
+			
+		# we got a non-empty dictionary
+		qq_list = []
+		for question in q_list:
+			# add a new object to the QuestionObject for the current user
+			# package for the client			
+			# deal with male female
+			if question.text.endswith("_male"):
+				current_friend = getFriendWithValidName(current_user, "male")
+			elif question.text.endswith("female"):
+				 current_friend = getFriendWithValidName(current_user, "fenale")
+			else:
+				current_friend = getFriendWithValidName(current_user)
+			p_tuple = p_types_products[question.type].pop(0)
+			product1 = p_tuple[0]
+			product2 = p_tuple[1]
+					
+			# get feed objects for count
+			old_objects = FeedObject.objects.filter(forUser=current_friend, product1=product1, product2=product2, currentQuestion=question) 
+                	p1_count = 0
+			p2_count = 0
+			if not(len(old_objects)==0):
+				p1_count = old_objects[0].product1Count
+				p2_count = old_objects[0].product2Count
+			
+			try:
+				question_text = question.text.replace("%n", current_friend["name"].split()[0])
+			except:
+				question_text = question.text
+
+			q_q = QuestionObject.objects.create(
+				toUser = current_user,
+				aboutFriend = current_friend["facebook_id"],
+				aboutFriendName = current_friend["name"],
+				product1 = product1,
+				product2 = product2,
+				image1 = product1.fileURL,
+				image2 = product2.fileURL,
+				currentQuestion = question,
+				questionText = question_text,
+				product1Count = p1_count,
+				product2Count = p2_count
+			)	
+			qq_list.append(q_q)
+		return qq_list
+
+@csrf_exempt
+def newGetListQuestions(request, user_id):
+	NUM_OBJECTS = 100	
+	#get all feed items by friends
+	current_user = User.objects.get(pk=user_id)
+	# get Question Objects
+	num_q_objects = QuestionObject.objects.filter(toUser=current_user).count()
+	if num_q_objects < NUM_OBJECTS:
+		q_objects = updateQuestionObjectQueue(current_user, NUM_OBJECTS)
+	else:
+		q_objects = QuestionObject.objects.filter(toUser=current_user)[:NUM_OBJECTS]
+	
+	list_question_objects = []
+	for q in q_objects:
+		json_q = {
+			"fbFriend1": [], 
+			"fbFriend2": [], 
+			"product1Count": q.product1Count, 
+			"product2Count": q.product2Count, 
+			"currentQuestion": q.currentQuestion.id,
+			"name": q.aboutFriendName,
+			"product1": q.product1.id,
+			"product2": q.product2.id,
+			"image1": q.image1,
+			"image2": q.image2,
+			"friend": q.aboutFriend,
+			"questionText": q.questionText
+		}
+		list_question_objects.append(json_q)
+		# delete the q_object
+		q.delete()
+
+	response = HttpResponse(json.dumps(list_question_objects), mimetype='application/json')
+	response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+        response["Access-Control-Max-Age"] = "1000"
+        response["Access-Control-Allow-Headers"] = "*"
+        return response
+
+@csrf_exempt
+def getListQuestionsForGroup(request, user_id):	
+	return HttpResponse("Not Implemented", status=500)
+
+@csrf_exempt
+def updateTopFriends(request, user_id):
+	if request.method == 'POST':
+		try:
+			current_user = User.objects.get(pk=user_id)
+		except:
+			return HttpResponse("Not a valid user")
+		
+		top_friends = json.loads(request.POST["top_friends"])
+		current_user.topFriends = top_friends
+		current_user.save()
+		return HttpResponse("updated top friends")
+	else:
+		return HttpResponse("Not a POST request")
 
 @csrf_exempt
 def getListQuestionsNew(request, user_id):
@@ -657,17 +856,19 @@ def newUser(request):
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
         response["Access-Control-Max-Age"] = "1000"
         response["Access-Control-Allow-Headers"] = "*"
-	#return response
+#	return response
 
 	if request.method == 'POST':
-		obj, created = User.objects.get_or_create(facebookID=request.POST['id_facebookID'])
+		obj, created = User.objects.get_or_create(facebookID=int(request.POST['id_facebookID']))
 #		obj = User.objects.create()		
-		obj.facebookID = request.POST['id_facebookID']
+		obj.facebookID = int(request.POST['id_facebookID'])
 		#obj.socialIdentity =  request.POST['id_socialIdentity']
 		obj.profile =  request.POST['id_profile']
 		obj.friends =  request.POST['id_friends']
 		obj.genders = request.POST['id_genders']
 		obj.names = request.POST['id_names']
+		if request.POST['id_mutual_friend_count']:
+			obj.mutual_friend_count = request.POST['id_mutual_friend_count']
 		obj.save()
 
 #		form = UserForm(request.POST)

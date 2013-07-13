@@ -11,7 +11,9 @@ from data.models import ProductScore
 from data.models import UserScore
 from data.models import TrendingObject
 from data.models import UserGeneratedQuestion, UserGeneratedProduct, UserGeneratedAnswer, QuestionQueue 
+from data.models import QuestionObject 
 
+admin.site.register(QuestionObject)
 admin.site.register(Question)
 admin.site.register(ProductType)
 admin.site.register(Product)
