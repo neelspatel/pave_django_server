@@ -61,7 +61,13 @@ class Notification(models.Model):
 	number_answers = models.IntegerField(default=0)
 	number_ug_answers = models.IntegerField(default=0)
 	number_recs = models.IntegerField(default=0)
-		
+
+	
+class Recommendation(models.Model):
+	user = models.ForeignKey(User)
+	url = models.CharField(max_length=200)
+	text = models.CharField(max_length=200)
+	
 # Create your models here
 class ProductType(models.Model):
 	text = models.CharField(max_length=200)
