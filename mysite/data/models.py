@@ -47,7 +47,6 @@ class User(models.Model):
         genders = ListField()
 	mutual_friend_count = ListField(blank=True)
         friendsInApp = ListField(blank=True)
-#       friends = models.CommaSeparatedIntegerField()
 
         def save(self, *args, **kwargs):
                 self.friendsInApp = list ( set(self.friends).intersection(set( [int(x) for x in [ o.pk for o in User.objects.all()]] )))
@@ -61,7 +60,7 @@ class Notification(models.Model):
 	number_answers = models.IntegerField(default=0)
 	number_ug_answers = models.IntegerField(default=0)
 	number_recs = models.IntegerField(default=0)
-
+	status_score = models.IntegerField(default=0)		
 	
 class Recommendation(models.Model):
 	user = models.ForeignKey(User)

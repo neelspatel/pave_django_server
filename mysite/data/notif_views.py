@@ -15,9 +15,9 @@ def getNotifications(request, user_id):
 	current_user = User.objects.get(pk = user_id)
 	try:
 		notification = Notification.objects.get(user=current_user)
-		data = {"answers": notification.num_answers, "ug_answers": notification.num_ug_answers, "recs": notification.num_recs}
+		data = {"status_score": notification.status_score, "answers": notification.num_answers, "ug_answers": notification.num_ug_answers, "recs": notification.num_recs}
 	except Notification.DoesNotExist:
-		data = {"answers": 0, "ug_answers": 0, "recs": 0}
+		data = {"status_score": 0, "answers": 0, "ug_answers": 0, "recs": 0}
 	
 	# delete notification
 	notification.delete()
