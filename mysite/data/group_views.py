@@ -109,7 +109,7 @@ def getGroupListQuestions(request, user_id):
 				"product2": q.product2.id,
 				"image1": q.image1,
 				"image2": q.image2,
-				"friend": rand_friend,
+				"friend": str(rand_friend),
 				"questionText": q.questionText
 			}
 			list_question_objects.append(json_q)
