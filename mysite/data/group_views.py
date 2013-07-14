@@ -92,7 +92,7 @@ def getGroupListQuestions(request, user_id):
 			
 			
 			try:
-				question_text = q.currentQuestion.text.replace("%n", current_friend["name"].split()[0])
+				question_text = q.currentQuestion.text.replace("%n", names[rand_friend].split()[0])
 			except:
 				question_text = q.currentQuestion.text
 
