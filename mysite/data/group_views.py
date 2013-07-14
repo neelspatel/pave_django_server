@@ -49,7 +49,7 @@ def getGroupListQuestions(request, user_id):
 	if request.method == "POST":	
 		NUM_OBJECTS = 100	
 		current_user = User.objects.get(pk=user_id)
-		group = json.loads(request.POST["group[]"])
+		group = json.loads(request.POST["group"])
 		genders = {}
 		names = {}
 		males = []
