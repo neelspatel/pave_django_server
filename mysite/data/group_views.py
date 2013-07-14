@@ -13,25 +13,15 @@ from data.models import Product
 from data.models import User
 from data.models import UserForm
 from data.models import FeedObject
-from data.models import Answer
-from data.models import ListField
-from data.models import TrendingObject
-from data.models import ProductType
 from data.models import QuestionObject
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
-import logging
-import urllib
 import random
 import datetime
-import calendar
 import requests
 import itertools
 from collections import Counter
-import httplib2
-import oauth2
-import time
 from data.notif_views import addNotification
 from data.views import updateQuestionObjectQueue
 
@@ -66,6 +56,7 @@ def getGroupListQuestions(request, user_id):
 			else:
 				females.append(friend)
 
+
 		no_males = False
 		no_females = False
 		if (len(males) == 0):
@@ -95,9 +86,19 @@ def getGroupListQuestions(request, user_id):
 					if (no_females):
 						continue
 					rand_friend = choice(females)	
+
 			else:
 				rand_friend = choice(group)
-					
+			
+			
+			try:
+				question_text = q.currentQuestion.text.replace("%n", current_friend["name"].split()[0])
+			except:
+				question_text = q.currentQuestion.text
+
+
+
+								
 			json_q = {
 				"fbFriend1": [], 
 				"fbFriend2": [], 
@@ -110,7 +111,7 @@ def getGroupListQuestions(request, user_id):
 				"image1": q.image1,
 				"image2": q.image2,
 				"friend": str(rand_friend),
-				"questionText": q.questionText
+				"questionText": question_text
 			}
 			list_question_objects.append(json_q)
 			# delete the q_object
