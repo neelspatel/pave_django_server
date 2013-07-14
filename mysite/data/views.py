@@ -886,8 +886,11 @@ def newUser(request):
 		obj.friends =  request.POST['id_friends']
 		obj.genders = request.POST['id_genders']
 		obj.names = request.POST['id_names']
-		if request.POST['id_mutual_friend_count']:
-			obj.mutual_friend_count = request.POST['id_mutual_friend_count']
+		try:
+			if request.POST['id_mutual_friend_count']:
+				obj.mutual_friend_count = request.POST['id_mutual_friend_count']
+		except:
+				obj.mutual_friend_count = []
 		obj.save()
 
 #		form = UserForm(request.POST)
