@@ -33,6 +33,25 @@ import httplib2
 import oauth2
 import time
 from data.notif_views import addNotification
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
+
+#for uploading a single file to s3 from a client somewhere
+@csrf_exempt
+def uploadImage(request):
+	if request.FILES:
+		filename = request.POST['name']
+		con = S3Connection('AKIAJ5NFFKY3KUKBRTPQ','Z3heEPRxIvB0KXxLEaYZ69rpdOsQYXx2cwfprHpf')
+		bucket = con.create_bucket('preparsedugproductimages')
+		k = bucket.new_key(filename)
+		k.key = filename
+		k.set_metadata("Content-Type", "image/jpg")
+		k.set_contents_from_string(request.FILES['fileupload'].read())
+		k.set_acl('public-read')
+
+		return HttpResponse("Files! ")
+	return HttpResponse("No files")	
+
 
 @csrf_exempt
 def imagesearch(request, query):

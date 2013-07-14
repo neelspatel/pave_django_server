@@ -25,5 +25,6 @@ def upload_image(filename):
 	bucket = con.create_bucket('ug_product_images')
 	k = bucket.new_key(filename)
 	k.key = filename
+	k.set_metadata("Content-Type", mime)
 	k.set_contents_from_filename(filename)
 	k.set_acl('public-read')

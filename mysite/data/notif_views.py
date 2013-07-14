@@ -28,10 +28,16 @@ def getNotifications(request, user_id):
 	response["Access-Control-Allow-Headers"] = "*"
 	return response
 
+def getScaleFactor(user_id):
+	# what to do here
+	return 1
 def addNotification(user_id, notif):
 	current_user = User.objects.get(pk=user_id)
 	notif = notif_type[0]
 	amt = notif_type[1]
+	if notif == "status_score":
+		factor = getScaleFactor(user_id)
+		amt = amt * factor
 	try:
 		notification = Notification.objects.get(user=current_user)
 		setattr(notification, notif, F(notif) + amt)

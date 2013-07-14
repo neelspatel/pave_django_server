@@ -2,6 +2,7 @@ from django.conf.urls import patterns, url
 from data import views, ugviews
 
 urlpatterns = patterns('',
+        url(r'uploadImage', views.uploadImage, name = "uploadProductImage"),
         url(r'^imagesearch/(?P<query>\w+)/$', views.imagesearch, name = "imagesearch"),
 	url(r'uploadugproduct', ugviews.uploadUGProductImage, name = "uploadProductImage"),
         url(r'^gettrainingquestions/(?P<user_id>\w+)/$', views.getListQuestionsForPersonalityType, name = "getlistquestionsnew"),
