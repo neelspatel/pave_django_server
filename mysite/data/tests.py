@@ -127,7 +127,7 @@ class GetListQuestionsTest(TestCase):
 		self.assertEqual(200, response.status_code)
 	def test_group_get_questions(self):
 		url = '/data/groupgetlistquestions/' + self.user.facebookID + '/'
-		response = self.client.post(url, {"group": json.dumps(["123", "234"])})
+		response = self.client.post(url, {"group[]": json.dumps(["123", "234"])})
 		self.assertEqual(200, response.status_code)
 		self.assertContains(response, self.question.text)
 
