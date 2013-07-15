@@ -351,9 +351,9 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 			# add a new object to the QuestionObject for the current user
 			# package for the client			
 			# deal with male female
-			if question.text.endswith("_male"):
+			if question.type.text.endswith("_male"):
 				current_friend = getFriendWithValidName(current_user, "male")
-			elif question.text.endswith("female"):
+			elif question.type.text.endswith("_female"):
 				 current_friend = getFriendWithValidName(current_user, "fenale")
 			else:
 				current_friend = getFriendWithValidName(current_user)
