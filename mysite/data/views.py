@@ -18,6 +18,7 @@ from data.models import ListField
 from data.models import TrendingObject
 from data.models import ProductType
 from data.models import QuestionObject
+from data.models import QuestionQueue
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
@@ -401,7 +402,7 @@ def newGetListQuestions(request, user_id):
 
 	# get User Generated Questions from Question Queue
 	has_ug_questions = False
-	ug_question_queue_count = QuestionQueue.filter(toUser = current_user).count()
+	ug_question_queue_count = QuestionQueue.objects.filter(toUser = current_user).count()
 	if ug_question_queue_count > 0:
 		has_ug_questions = True
 		# we have user generated questions for this user
