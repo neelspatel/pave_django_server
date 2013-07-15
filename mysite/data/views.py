@@ -391,25 +391,7 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 		return qq_list
 
 
-# DELETE THESE CLASSES
-class QuestionQueue(models.Model):
-	toUser = models.ForeignKey(User, related_name = "to_user")
-	byUser = models.ForeignKey(User, related_name = "by_user")
-	question = models.ForeignKey(UserGeneratedQuestion)
-	on = models.BooleanField(default = True)
-	created_at = models.DateTimeField(auto_now_add = True)	
-
-class UserGeneratedQuestion(models.Model):
-	user = models.ForeignKey(User)
-	text = models.TextField()
-	on = models.BooleanField(default=True)
-	product1 = models.ForeignKey(UserGeneratedProduct, related_name = "product_1")		
-	product2 = models.ForeignKey(UserGeneratedProduct, related_name = "product_2")
-	product1_count = models.IntegerField(default=0)
-	product2_count = models.IntegerField(default=0)
-	def __unicode__(self):
-		return self.text
-
+#
 @csrf_exempt
 def newGetListQuestions(request, user_id):
 	NUM_OBJECTS = 100	

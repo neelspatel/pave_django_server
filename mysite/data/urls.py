@@ -1,7 +1,8 @@
 from django.conf.urls import patterns, url
-from data import views, ugviews, notif_views, group_views
+from data import views, ugviews, notif_views, group_views, training_views
 
 urlpatterns = patterns('',
+	
         url(r'uploadImage', views.uploadImage, name = "uploadProductImage"),
         url(r'^imagesearch/(?P<query>\w+)/$', views.imagesearch, name = "imagesearch"),
 	url(r'uploadugproduct', ugviews.uploadUGProductImage, name = "uploadProductImage"),
@@ -28,7 +29,8 @@ urlpatterns = patterns('',
 	url(r'^getlistquestionsnew/(?P<user_id>\w+)/$', views.getListQuestionsNew, name = "getlistquestionsnew"),
 	url(r'^newgetlistquestions/(?P<user_id>\w+)/$', views.newGetListQuestions, name = "newgetlistquestions"),	
 	url(r'^groupgetlistquestions/(?P<user_id>\w+)/$', group_views.getGroupListQuestions, name = "getgrouplistquestions"),
-
+	url(r'^(traininggetlistquestions/?P<user_id>\w+)/$', training_views.getTrainingListQuestions, name = "getlistquestiontraining"),
+	
 	url(r'^getallanswers/(?P<user_id>\w+)/$', views.getAllAnswers, name = "getallanswers"),
 	url(r'^gettrendingobjects/(?P<user_id>\w+)/$', views.getTrendingObjects, name = "gettrendingobjects",),
 	url(r'^numberofnewobjects/(?P<user_id>\w+)/(?P<time_since>\w+)/$', views.numberOfNewObjects, name = "number of new objects",),
