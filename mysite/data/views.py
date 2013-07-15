@@ -390,36 +390,94 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 			qq_list.append(q_q)
 		return qq_list
 
+
+# DELETE THESE CLASSES
+class QuestionQueue(models.Model):
+	toUser = models.ForeignKey(User, related_name = "to_user")
+	byUser = models.ForeignKey(User, related_name = "by_user")
+	question = models.ForeignKey(UserGeneratedQuestion)
+	on = models.BooleanField(default = True)
+	created_at = models.DateTimeField(auto_now_add = True)	
+
+class UserGeneratedQuestion(models.Model):
+	user = models.ForeignKey(User)
+	text = models.TextField()
+	on = models.BooleanField(default=True)
+	product1 = models.ForeignKey(UserGeneratedProduct, related_name = "product_1")		
+	product2 = models.ForeignKey(UserGeneratedProduct, related_name = "product_2")
+	product1_count = models.IntegerField(default=0)
+	product2_count = models.IntegerField(default=0)
+	def __unicode__(self):
+		return self.text
+
 @csrf_exempt
 def newGetListQuestions(request, user_id):
 	NUM_OBJECTS = 100	
+	NUM_UG_QUESTIONS = 20
 	#get all feed items by friends
 	current_user = User.objects.get(pk=user_id)
+
+	# get User Generated Questions from Question Queue
+	has_ug_questions = False
+	ug_question_queue_count = QuestionQueue.filter(toUser = current_user).count()
+	if ug_question_queue_count > 0:
+		has_ug_questions = True
+		# we have user generated questions for this user
+		if ug_question_queue_count < 20:
+			NUM_UG_QUESTIONS = ug_question_count
+		ug_questions = QuestionQueue.filter(toUser = current_user).order_by(created_at)[:NUM_UG_QUESTIONS]
+	
+	# determine how many questions that we need to get 
+	num_questions = NUM_OBJECTS - NUM_UG_QUESTIONS
 	# get Question Objects
 	num_q_objects = QuestionObject.objects.filter(toUser=current_user).count()
 	if num_q_objects < NUM_OBJECTS:
-		q_objects = updateQuestionObjectQueue(current_user, NUM_OBJECTS)
+		q_objects = updateQuestionObjectQueue(current_user, num_questions)
 	else:
-		q_objects = QuestionObject.objects.filter(toUser=current_user)[:NUM_OBJECTS]
-	
+		q_objects = QuestionObject.objects.filter(toUser=current_user)[:num_questions]
+
+	questions = list(q_objects)
+	if (has_ug_questions):
+		questions = shuffle(list(ug_questions) + questions) 
+		
 	list_question_objects = []
-	for q in q_objects:
-		json_q = {
-			"fbFriend1": [], 
-			"fbFriend2": [], 
-			"product1Count": q.product1Count, 
-			"product2Count": q.product2Count, 
-			"currentQuestion": q.currentQuestion.id,
-			"name": q.aboutFriendName,
-			"product1": q.product1.id,
-			"product2": q.product2.id,
-			"image1": q.image1,
-			"image2": q.image2,
-			"friend": q.aboutFriend,
-			"questionText": q.questionText
-		}
+	for q in questions:
+		# determine if q is user_generated
+		if type(q) == QuestionObject:		
+			json_q = {
+				"isUG": False,
+				"fbFriend1": [], 
+				"fbFriend2": [], 
+				"product1Count": q.product1Count, 
+				"product2Count": q.product2Count, 
+				"currentQuestion": q.currentQuestion.id,
+				"name": q.aboutFriendName,
+				"product1": q.product1.id,
+				"product2": q.product2.id,
+				"image1": q.image1,
+				"image2": q.image2,
+				"friend": q.aboutFriend,
+				"questionText": q.questionText
+			}
+			# delete the q_object
+		else:
+			json_q = {
+				"isUG": True,
+				"fbFriend1": [],
+				"fbFriend2": [],
+				"product1Count": q.question.product1_count,
+				"product2Count": q.question.product2_count,
+				"currentQuestion": q.question.id,
+				#"name":
+				"product1": q.question.product1.id,
+				"product2": q.question.product2.id,
+				"image1": q.question.product1.imageURL,
+				"image2": q.question.product2.imageURL,
+				"friend": q.byUser.facebookID,
+				"questionText": q.question.text
+			}
+		
 		list_question_objects.append(json_q)
-		# delete the q_object
 		q.delete()
 
 	response = HttpResponse(json.dumps(list_question_objects), mimetype='application/json')

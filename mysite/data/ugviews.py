@@ -71,4 +71,15 @@ def createUGQuestion(request, user_id):
 
 	return HttpResponse("Not a POST request")
 	
+@csrf_exempt
+def saveUGAnswer(json_ug_answer, user_id):
+	UserGeneratedAnswer.objects.create(
+		fromUser = User.objects.get(pk=json_ug_answer["userID"],
+		forUser = User.objects.get(pk=json_ug_answer["friend"],
+		chosenUGProduct = UserGeneratedProduct.objects.get(pk=json_ug_answer["chosen"]),
+		wrongUGProduct = UserGeneratedProduct.objects.get(pk=json_ug_answer["wrong"]),
+		question = UserGeneratedQuestion.objects.get(pk=json_ug_answer["question"]
+	)
+
+
 

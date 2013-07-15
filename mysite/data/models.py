@@ -74,32 +74,13 @@ class ProductType(models.Model):
         def __unicode__(self):
                 return self.text
 
-class UserGeneratedProduct(models.Model):
-        on = models.BooleanField(default=True)
-        fileURL = models.CharField(max_length=200)
-        user = models.ForeignKey(User)
-        description = models.CharField(max_length=200, null=True)
-	def __unicode__(self):
-                return self.fileURL
-
 class Question(models.Model):
 	type = models.ForeignKey(ProductType)
 	text = models.TextField()
 	on = models.BooleanField(default=True)
 	def __unicode__(self):
 		return self.text
-
-class UserGeneratedQuestion(models.Model):
-	user = models.ForeignKey(User)
-	text = models.TextField()
-	on = models.BooleanField(default=True)
-	product1 = models.ForeignKey(UserGeneratedProduct, related_name = "product_1")		
-	product2 = models.ForeignKey(UserGeneratedProduct, related_name = "product_2")
-	product1_count = models.IntegerField(default=0)
-	product2_count = models.IntegerField(default=0)
-	def __unicode__(self):
-		return self.text
-
+	
 class Product(models.Model):
         type = models.ForeignKey(ProductType)
 	on = models.BooleanField(default=True)
@@ -119,21 +100,6 @@ class Product(models.Model):
 class UserForm(ModelForm):
         class Meta:
                 model = User
-
-class QuestionQueue(models.Model):
-	toUser = models.ForeignKey(User, related_name = "to_user")
-	byUser = models.ForeignKey(User, related_name = "by_user")
-	question = models.ForeignKey(UserGeneratedQuestion)
-	on = models.BooleanField(default = True)
-	created_at = models.DateTimeField(auto_now_add = True)	
-
-class UserGeneratedAnswer(models.Model):
-	fromUser = models.ForeignKey(User, related_name = "from_user")
-	forUser = models.ForeignKey(User, related_name = "for_user")
-	chosenUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "chosen_user_gen_products")
-	wrongUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "wrong_user_gen_product")
-	question = models.ForeignKey(UserGeneratedQuestion)
-	created_at = models.DateTimeField(auto_now_add = True)
 
 class QuestionObject(models.Model):
 	# need to change FBFriend1 to a comma seperated value for product 1, FBFriend2 list of people who voted for product 2
@@ -232,6 +198,68 @@ class Answer(models.Model):
 	def __unicode__(self):
 		return (self.fromUser.facebookID + " answered " + self.question.text  + " for " + self.forFacebookId + " chose " + str(self.chosenProduct.fileURL) + " over " + str(self.wrongProduct.fileURL))
 
+############# USER GENERATED MODELS #################################################################
+class UserGeneratedProduct(models.Model):
+        on = models.BooleanField(default=True)
+        fileURL = models.CharField(max_length=200)
+        user = models.ForeignKey(User)
+        description = models.CharField(max_length=200, null=True)
+	def __unicode__(self):
+                return self.fileURL
+
+
+class UserGeneratedQuestion(models.Model):
+	user = models.ForeignKey(User)
+	text = models.TextField()
+	on = models.BooleanField(default=True)
+	product1 = models.ForeignKey(UserGeneratedProduct, related_name = "product_1")		
+	product2 = models.ForeignKey(UserGeneratedProduct, related_name = "product_2")
+	product1_count = models.IntegerField(default=0)
+	product2_count = models.IntegerField(default=0)
+	def __unicode__(self):
+		return self.text
+
+
+class QuestionQueue(models.Model):
+	toUser = models.ForeignKey(User, related_name = "to_user")
+	byUser = models.ForeignKey(User, related_name = "by_user")
+	question = models.ForeignKey(UserGeneratedQuestion)
+	on = models.BooleanField(default = True)
+	created_at = models.DateTimeField(auto_now_add = True)	
+
+class UserGeneratedAnswer(models.Model):
+	fromUser = models.ForeignKey(User, related_name = "from_user")
+	forUser = models.ForeignKey(User, related_name = "for_user")
+	chosenUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "chosen_user_gen_products")
+	wrongUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "wrong_user_gen_product")
+	question = models.ForeignKey(UserGeneratedQuestion)
+	created_at = models.DateTimeField(auto_now_add = True)
+
+############# TRAINING MODELS ###############################################################################
+
+class TrainingProductType(models.Model):
+	text = models.CharField(max_length=200)
+
+class TrainingProduct(models.Model):
+	on = models.BooleanField(default=True)
+	type = models.ForeignKey(TrainingProductType)
+	fileURL = models.CharField(max_length=200)
+	description= models.TextField(null=True)
+	
+class TrainingQuestion(models.Model):
+	type = models.ForeignKey(TrainingProductType)
+	text = models.TextField()
+	on = models.BooleanField(default=True)
+
+class TrainingAnswer(models.Model):
+	user = models.ForeignKey(User)
+	wrongProduct = models.ForeignKey(TrainingProduct, related_name="t_wrong_product")
+	chosenProduct = models.ForeignKey(TrainingProduct, related_name="t_chosen_product")
+	question = models.ForeignKey(TrainingQuestion, related_name="t_question")
+	created_at = models.DateTimeField(auto_now_add = True)
+
+
+#############################################################################################################
 class Rec (models.Model):
 	user_id = models.ForeignKey(User)
 	product_type = models.ForeignKey(ProductType)
