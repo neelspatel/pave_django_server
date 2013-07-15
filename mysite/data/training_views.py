@@ -96,10 +96,10 @@ def getTrainingListQuestions(request, user_id):
 @csrf_exempt
 def saveTrainingAnswer(json_ug_answer, user_id):
 	TrainingAnswer.objects.create(
-		user = User.objects.get(pk=json_ug_answer["userID"],
+		user = User.objects.get(pk=json_ug_answer["userID"]),
 		chosenUGProduct = TrainingProduct.objects.get(pk=json_ug_answer["chosen"]),
 		wrongUGProduct = TrainingProduct.objects.get(pk=json_ug_answer["wrong"]),
-		question = TrainingQuestion.objects.get(pk=json_ug_answer["question"]
+		question = TrainingQuestion.objects.get(pk=json_ug_answer["question"])
 	)
 
 
