@@ -32,7 +32,7 @@ from process_images import process_image
 
 # THIS IS FOR TRAINING PURPOSES
 @csrf_exempt
-def getRecsListQuestion(request, user_id):
+def getRecsListQuestions(request, user_id):
 	jock = {"name": "Vin Diesel", "id": "10150153748568313"}
 	science = {"name": "Bill Nye", "id": "48947135361"}
 	artsy = {"name": "James Franco", "id": "339468806098340"}
