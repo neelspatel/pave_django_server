@@ -31,6 +31,9 @@ urlpatterns = patterns('',
 	url(r'^groupgetlistquestions/(?P<user_id>\w+)/$', group_views.getGroupListQuestions, name = "getgrouplistquestions"),
 	url(r'^(traininggetlistquestions/?P<user_id>\w+)/$', training_views.getTrainingListQuestions, name = "getlistquestiontraining"),
 	
+	# get questions to train the stupid shit
+	url(r'^(recsgetlistquestions/?P<user_id>\w+)/$', training_views.getRecsListQuestions, name = "getlistquestionrecs"),
+	
 	url(r'^getallanswers/(?P<user_id>\w+)/$', views.getAllAnswers, name = "getallanswers"),
 	url(r'^gettrendingobjects/(?P<user_id>\w+)/$', views.getTrendingObjects, name = "gettrendingobjects",),
 	url(r'^numberofnewobjects/(?P<user_id>\w+)/(?P<time_since>\w+)/$', views.numberOfNewObjects, name = "number of new objects",),

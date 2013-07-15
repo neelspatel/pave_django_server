@@ -30,6 +30,87 @@ import requests
 import itertools
 from process_images import process_image
 
+# THIS IS FOR TRAINING PURPOSES
+@csrf_exempt
+def getRecsListQuestion(request, user_id):
+	jock = {"name": "Vin Diesel", "id": "10150153748568313"}
+	science = {"name": "Bill Nye", "id": "48947135361"}
+	artsy = {"name": "James Franco", "id": "339468806098340"}
+	list_choices = [jock, science, artsy]
+
+	current_user = User.objects.get(pk=user_id)
+	list_friends_objects = []
+	num_new_objects = 100
+
+	for x in range(num_new_objects):
+		
+		current_friend = choice(list_choices)		
+		name = current_friend["name"]
+
+		#gets a random quesiton
+        	num_questions = Question.objects.count() -1
+        	currentQuestion = Question.objects.all()[randint(0,num_questions)]
+
+        	#gets the type we're dealing with
+        	current_type = currentQuestion.type
+
+        	#now gets two random products in that type
+        	num_products = current_type.count - 1
+        	index1 = randint(1, num_products)  
+        	index2 = randint(1, num_products) -1 
+       		if index1 == index2: index2 = num_products
+
+       		currentProduct1 = Product.objects.get(type = current_type, idInType = index1)
+	        currentProduct2 = Product.objects.get(type = current_type, idInType = index2)
+
+		old_objects = FeedObject.objects.filter(forUser=current_friend, product1=currentProduct1, product2=currentProduct2, currentQuestion=currentQuestion) 
+
+		current_object = {}
+                if len(old_objects)==0:
+ #                       current_object = FeedObject()
+                        #creates the object to save it in the dictionary
+                        current_object['product1'] = currentProduct1.id
+                        current_object['product2'] = currentProduct2.id
+                        current_object['image1'] = currentProduct1.fileURL
+                        current_object['image2'] = currentProduct2.fileURL
+                        current_object['fbFriend1'] = []
+                        current_object['fbFriend2'] = []
+                        current_object['product1Count'] = 0
+                        current_object['product2Count'] = 0
+                        current_object['currentQuestion'] = currentQuestion.id
+                        current_object['questionText'] = currentQuestion.text
+                else:
+#                        current_object = old_objects[0]
+                        current_object['product1'] = old_objects[0].product1.id
+                        current_object['product2'] = old_objects[0].product2.id
+                        current_object['image1'] = old_objects[0].image1
+                        current_object['image2'] = old_objects[0].image2
+                        current_object['fbFriend1'] = old_objects[0].fbFriend1
+                        current_object['fbFriend2'] = old_objects[0].fbFriend2
+                        current_object['product1Count'] = old_objects[0].product1Count
+                        current_object['product2Count'] = old_objects[0].product2Count
+                        current_object['currentQuestion'] = old_objects[0].currentQuestion.id
+                        current_object['questionText'] = old_objects[0].questionText
+
+		try:
+			current_object['questionText'] = current_object['questionText'].replace("%n", name.split()[0])
+		except:
+			current_object['questionText'] = current_object['questionText']
+
+		current_object['name'] = name
+		current_object['friend'] = current_friend["id"]
+		
+		list_friends_objects.append(current_object)
+
+	response = HttpResponse(json.dumps(list_friends_objects), mimetype='application/json')
+	response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+        response["Access-Control-Max-Age"] = "1000"
+        response["Access-Control-Allow-Headers"] = "*"
+        return response
+
+
+
 @csrf_exempt
 def getTrainingListQuestions(request, user_id):
 	current_user = User.objects.get(pk=user_id)
