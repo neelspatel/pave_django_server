@@ -5,7 +5,7 @@ from data.models import Product
 from data.models import User
 from data.models import Answer
 from data.models import FeedObject
-from data.models import Rec
+from data.models import Recommendation
 from data.models import ProductTypeScoreAttributes
 from data.models import ProductScore
 from data.models import UserScore
@@ -15,6 +15,8 @@ from data.models import QuestionObject
 from data.models import TrainingQuestion, TrainingAnswer, TrainingProduct, TrainingProductType
 
 admin.site.register(User)
+
+admin.site.register(Recommendation)
 
 # TRAINING
 admin.site.register(TrainingQuestion)

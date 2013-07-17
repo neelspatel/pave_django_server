@@ -1,12 +1,18 @@
 from django.conf.urls import patterns, url
-from data import views, ugviews, notif_views, group_views, training_views
+from data import views, ugviews, notif_views, group_views, training_views, rec_views
 
 urlpatterns = patterns('',
+	# Profile Logic
+        url(r'^getreclist/(?P<user_id>\w+)/$', rec_views.getRecList, name = "getreclist"),
+        url(r'^getugquestionslist/(?P<user_id>\w+)/$', ugviews.getUGQuestionsList, name = "getugquestionlist"),
 	
-        url(r'uploadImage', views.uploadImage, name = "uploadProductImage"),
+	# User Generated Upload 
+	url(r'uploadImage', views.uploadImage, name = "uploadProductImage"),
         url(r'^imagesearch/(?P<query>\w+)/$', views.imagesearch, name = "imagesearch"),
 	url(r'uploadugproduct', ugviews.uploadUGProductImage, name = "uploadProductImage"),
+	
         url(r'^gettrainingquestions/(?P<user_id>\w+)/$', views.getListQuestionsForPersonalityType, name = "getlistquestionsnew"),
+
 	url(r'transferanswers', views.transferAnswers, name='transferAnswers'),
         url(r'^updatetopfriends/(?P<user_id>\w+)/$', views.updateTopFriends, name = "createUGQuestion"),
         url(r'^createugquestion/(?P<user_id>\w+)/$', ugviews.createUGQuestion, name = "createUGQuestion"),

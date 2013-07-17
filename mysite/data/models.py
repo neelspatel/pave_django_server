@@ -222,6 +222,8 @@ class UserGeneratedQuestion(models.Model):
 	user = models.ForeignKey(User)
 	text = models.TextField()
 	on = models.BooleanField(default=True)
+	fbFriend1 = ListField(blank=True)
+	fbFriend2 = ListField(blank=True)
 	product1 = models.ForeignKey(UserGeneratedProduct, related_name = "product_1")		
 	product2 = models.ForeignKey(UserGeneratedProduct, related_name = "product_2")
 	product1_count = models.IntegerField(default=0)
@@ -244,7 +246,20 @@ class UserGeneratedAnswer(models.Model):
 	wrongUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "wrong_user_gen_product")
 	question = models.ForeignKey(UserGeneratedQuestion)
 	created_at = models.DateTimeField(auto_now_add = True)
+	
+	def save(self, *args, **kwargs):
+		q = self.question
+		if (q.product1 == self.chosenUGProduct):
+			q.fbFriend1.append(self.fromUser.pk)
+			q.product1_count += 1
+		else:	
+			q.fbFriend2.append(self.fromUser.pk)
+			q.product2_count += 1
+		q.save()
+		super(UserGeneratedAnswer, self).save(*args, **kwargs)
+		
 
+			
 ############# TRAINING MODELS ###############################################################################
 
 class TrainingProductType(models.Model):

@@ -11,6 +11,7 @@ from django.core import serializers
 from data.models import Question
 from data.models import User
 from data.models import Notification
+from data.models import Recommendation
 from data.models import TrainingProductType, TrainingProduct, TrainingAnswer, TrainingQuestion 
 from django.forms.models import model_to_dict
 from random import randint
@@ -37,5 +38,21 @@ def updateRecVector(user_id):
 		return True
 	except:
 		return False
+
+
+@csrf_exempt
+def getRecList(request, user_id):
+	current_user = User.objects.get(pk=user_id)
+	recs = Recommendation.objects.filter(user=current_user)
+	data = []
+	for rec in recs:
+		data.append({"url": rec.url, "text": rec.text})
+	response = HttpResponse(json.dumps(data), mimetype='application/json')
+	response["Access-Control-Allow-Origin"] = "*"
+	response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+	response["Access-Control-Max-Age"] = "1000"
+	response["Access-Control-Allow-Headers"] = "*"
+	return response
+
 
 	
