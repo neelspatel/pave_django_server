@@ -7,9 +7,7 @@ import ast
 import datetime
 import calendar
 from south.modelsinspector import add_introspection_rules
-from rec_views import updateRecVector
-
-
+#from rec_views import updateRecVector
 
 add_introspection_rules([], ["^data\.models\.ListField"])
 
