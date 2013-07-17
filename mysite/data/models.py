@@ -7,6 +7,9 @@ import ast
 import datetime
 import calendar
 from south.modelsinspector import add_introspection_rules
+from rec_views import updateRecVector
+
+
 
 add_introspection_rules([], ["^data\.models\.ListField"])
 
@@ -51,6 +54,7 @@ class User(models.Model):
         def save(self, *args, **kwargs):
                 self.friendsInApp = list ( set(self.friends).intersection(set( [int(x) for x in [ o.pk for o in User.objects.all()]] )))
                 super(User, self).save(*args, **kwargs)
+		notif = Notification.objects.create(user=self)
 
         def __unicode__(self):
                 return str(self.facebookID)
@@ -61,7 +65,15 @@ class Notification(models.Model):
 	number_ug_answers = models.IntegerField(default=0)
 	number_recs = models.IntegerField(default=0)
 	status_score = models.IntegerField(default=0)		
-	
+	number_answers = models.IntegerField(default=0)
+	last_rec_update = models.DateTimeField(null=True)
+
+	def save(self, *args, **kwargs):
+		# not sure if this is right
+		if ((self.number_answers + 1) % 5) == 0:
+			response = updateRecVector(self.user.pk)	
+		super(Notification, self).save(*args, **kwargs)
+		
 class Recommendation(models.Model):
 	user = models.ForeignKey(User)
 	url = models.CharField(max_length=200)
@@ -257,7 +269,9 @@ class TrainingAnswer(models.Model):
 	chosenProduct = models.ForeignKey(TrainingProduct, related_name="t_chosen_product")
 	question = models.ForeignKey(TrainingQuestion, related_name="t_question")
 	created_at = models.DateTimeField(auto_now_add = True)
-
+	
+	def save(self, *args, **kwargs):	
+		super (TrainingAnswer, self).save(*args, **kwargs)
 
 #############################################################################################################
 class Rec (models.Model):
