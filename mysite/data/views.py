@@ -36,6 +36,7 @@ import time
 from data.notif_views import addNotification
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
+from top_friends import get_top_friends
 
 #for uploading a single file to s3 from a client somewhere
 @csrf_exempt
@@ -904,7 +905,39 @@ def getListQuestionsForPersonalityType(request, user_id):
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
         response["Access-Control-Max-Age"] = "1000"
         response["Access-Control-Allow-Headers"] = "*"	
-	return response 
+	return response
+
+@csrf_exempt 
+def createUser(request):
+	if request.method == 'POST':
+		
+		obj, created = User.objects.get_or_create(facebookID=int(request.POST['id_facebookID']))
+		obj.facebookID = int(request.POST['id_facebookID'])
+		#obj.socialIdentity =  request.POST['id_socialIdentity']
+		obj.profile =  request.POST['id_profile']
+		obj.friends =  request.POST['id_friends']
+		obj.genders = request.POST['id_genders']
+		obj.names = request.POST['id_names']
+		try:
+			if request.POST['id_mutual_friend_count']:
+				obj.mutual_friend_count = request.POST['id_mutual_friend_count']
+		except:
+				obj.mutual_friend_count = []
+		obj.save()
+		try:
+			access_token = request.POST["access_token"]
+			obj.topFriends = get_top_friends(access_token)
+			obj.save()
+		except:
+			return HttpResponse("Could not process top friends")
+			
+		response = HttpResponse("[{}]", mimetype = 'application/json')
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+                return response
+	return HttpResponse()
 
 @csrf_exempt
 def newUser(request):
