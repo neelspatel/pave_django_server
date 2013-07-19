@@ -16,6 +16,9 @@ def prepare_deploy(branch_name = "staging"):
 def pull (branch_name):
 	local("git pull origin " + branch_name)
 
+def restart_production():
+	sudo("service apache2 restart")
+
 def push(branch_name):
 	local('git push origin ' + branch_name)
 
