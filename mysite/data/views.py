@@ -808,7 +808,7 @@ def newAnswer(request):
 			if "is_anonymous" in request.POST:
 				anonymous_id = request.POST["is_anonymous"]	
 				obj = Answer.objects.create(
-					fromUser = from_user
+					fromUser = from_user,
 					forFacebookId = forFacebookId,
 					chosenProduct =  Product.objects.get(pk=chosen_product_id),
 					wrongProduct =  Product.objects.get(pk=wrong_product_id),
@@ -820,7 +820,7 @@ def newAnswer(request):
 					fromUser = from_user,
 					forFacebookId = forFacebookId,
 					chosenProduct =  Product.objects.get(pk=chosen_product_id),
-					wrongProduct =  Product.objects.get(pk=wrong_product_id)
+					wrongProduct =  Product.objects.get(pk=wrong_product_id),
 					question = Question.objects.get(pk=question_id),
 				)
 
