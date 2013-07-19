@@ -34,11 +34,16 @@ def updateRecVector(user_id):
 		r = requests.post(url)
 		notif, created = Notification.objects.get_or_create(user = User.objects.get(pk=user_id))
 		notif.last_rec_update = datetime.datetime.now()
+		# inform the notification if a new recomendation is ready
+		
 		notif.save()
 		return True
 	except:
 		return False
 
+
+def isUnique(rec_dict, user_id):
+	print "yup"
 
 @csrf_exempt
 def getRecList(request, user_id):

@@ -791,7 +791,7 @@ def detail(request):
 @csrf_exempt
 def newAnswer(request):
         if request.method == 'POST':
-		from_user = User.objects.get(request.POST["id_facebookID"])
+		from_user = User.objects.get(pk = request.POST["id_facebookID"])
 		forFacebookId = request.POST["id_forFacebookID"]
 		chosen_product_id = request.POST["id_chosenProduct"]
 		wrong_product_id = request.POST["id_wrongProduct"]

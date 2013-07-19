@@ -9,6 +9,7 @@ import simplejson as json
 from django.db.models import F
 from django.core import serializers
 from data.models import Notification, User
+from notif_views import *
 
 @csrf_exempt
 def getNotifications(request, user_id):
@@ -19,8 +20,13 @@ def getNotifications(request, user_id):
 	except Notification.DoesNotExist:
 		data = {"status_score": 0, "answers": 0, "ug_answers": 0, "recs": 0}
 	data = {"answers": 4, "ug_answers": 5, "recs": 12}	
-	# delete notification
-	#notification.delete()
+	
+	# reset notification
+	notification.number_answers = 0
+	notification.number_ug_answers = 0
+	notification.number_recs = 0
+	notification.save()
+	
 	response = HttpResponse(json.dumps(data), mimetype="application/json")
 	response["Access-Control-Allow-Origin"] = "*"
 	response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
@@ -31,6 +37,7 @@ def getNotifications(request, user_id):
 def getScaleFactor(user_id):
 	# what to do here
 	return 1
+
 def addNotification(user_id, notif):
 	current_user = User.objects.get(pk=user_id)
 	notif = notif_type[0]
@@ -46,4 +53,23 @@ def addNotification(user_id, notif):
 		notification = Notification.objects.create(user = current_user)
 		setattr(notification, notif, amt)
 		notification.save()
+
+# Use this function to update a status score
+def updateStatusScore(user, action):
+	# on a scale to 100
+	stages = {"early": 20, "middle": 50, "danger": 80} 
+	actions = {"training": 0, "": 1, "": 2}
+	notif = Notification.objects.get(user=user)
+	old_status_score = notif.status_score
+	rate = (notif.rate_training, notif.rate_answer, notif.rate_others)
+	pre_scale = rate[actions[action]] + old_status_score
+	scale = notif.scale
+
+	if notif.rec_ready:
+		scale *= 2
+	elif
+		if pre_scale > stages["danger"]:
+		
 	
+
+
