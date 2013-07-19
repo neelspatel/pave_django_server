@@ -135,6 +135,15 @@ def numberOfNewObjects(request, user_id, time_since):
 #	else:
 #		most_recent = calendar.timegm(datetime.datetime.utcnow().utctimetuple())	
 	return HttpResponse(json.dumps({'count': count, 'last':most_recent}), mimetype='application/json')
+@csrf_exempt
+def getProfileStats(request, user_id):
+	current_user = User.objects.get(pk=user_id)
+        vote_count = Answer.objects.filter(fromUser = user_id).count()
+	answer_count = Answer.objects.filter(forUser = current_user).count()
+	ug_question_count = UserGeneratedQuestion.objects.filter(byUser = current_user).count()
+	data = {"vote_count": vote_count, "answer_count": answer_count, "ug_question_count": ug_question_count}
+        return HttpResponse(json.dumps(data), mimetype='application/json')
+
 
 @csrf_exempt
 def numberOfAnswersGiven(request, user_id):
@@ -328,6 +337,45 @@ def getFriendWithValidName(current_user, gender = None):
 			name = ""
 
 	return {"name": name, "facebook_id": current_friend}
+
+# Top Friends method
+@csrf_exempt
+def getFriendWithValidNameTopFriends(current_user, gender = None):
+	MUTUAL_FRIEND_PROB = 0.8
+	TOP_FRIEND_PROB = 0.9
+	name = ""
+	while name == "":
+		if len(current_user.topFriends) == 0:
+			if len(current_user.friends) > 100:
+				decision = random.random()
+				if decision < MUTUAL_FRIEND_PROB:
+					index = random.randint(0, 100-1)
+				else:
+					index = random.randint(100,len(current_user.friends) - 1)		
+			else:	
+				index = random.randint(0,len(current_user.friends) - 1)
+		else:
+			decision = random.random()
+			if decision < TOP_FRIEND_PROB:
+				top_friends_index = random.randint(0, len(current_user.topFriends) - 1)
+				index = current_user.friends.index(current_user.topFriends[top_friends_index])
+			else:
+				index = random.randint(0,len(current_user.friends) - 1)
+				
+		# check gender
+		if gender:
+			if not (gender == str(current_user.genders[index])):
+				name = ""
+				continue
+		
+		current_friend = str(current_user.friends[index])
+		name = current_user.names[index]
+		#checks if it is a valid name (in a very hackish way)
+		if name != name.decode('utf8'):
+			name = ""
+
+	return {"name": name, "facebook_id": current_friend}
+
 
 @csrf_exempt
 def updateQuestionObjectQueue(current_user, count=100, replace=False):

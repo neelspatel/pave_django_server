@@ -13,7 +13,9 @@ from data.models import TrendingObject
 from data.models import UserGeneratedQuestion, UserGeneratedProduct, UserGeneratedAnswer, QuestionQueue 
 from data.models import QuestionObject 
 from data.models import TrainingQuestion, TrainingAnswer, TrainingProduct, TrainingProductType
+from data.models import Notification
 
+admin.site.register(Notification)
 admin.site.register(User)
 
 admin.site.register(Recommendation)

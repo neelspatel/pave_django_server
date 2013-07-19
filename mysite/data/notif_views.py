@@ -15,12 +15,12 @@ def getNotifications(request, user_id):
 	current_user = User.objects.get(pk = user_id)
 	try:
 		notification = Notification.objects.get(user=current_user)
-		data = {"status_score": notification.status_score, "answers": notification.num_answers, "ug_answers": notification.num_ug_answers, "recs": notification.num_recs}
+		data = {"status_score": notification.status_score, "answers": notification.number_answers, "ug_answers": notification.number_ug_answers, "recs": notification.number_recs}
 	except Notification.DoesNotExist:
 		data = {"status_score": 0, "answers": 0, "ug_answers": 0, "recs": 0}
-	
+	data = {"answers": 4, "ug_answers": 5, "recs": 12}	
 	# delete notification
-	notification.delete()
+	#notification.delete()
 	response = HttpResponse(json.dumps(data), mimetype="application/json")
 	response["Access-Control-Allow-Origin"] = "*"
 	response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
