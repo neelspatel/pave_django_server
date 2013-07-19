@@ -67,7 +67,7 @@ def updateStatusScore(user, action):
 
 	if notif.rec_ready:
 		scale *= 2
-	elif:
+	else:
 		#if pre_scale > stages["danger"]:
 		return 3
 	
