@@ -69,6 +69,8 @@ class Notification(models.Model):
 	status_score = models.IntegerField(default=0)		
 	number_answers = models.IntegerField(default=0)
 	last_rec_update = models.DateTimeField(null=True)
+	rec_ready = models.BooleanField(default=False)
+	#scale = models.FloatField(default = 1.0)
 
 	def save(self, *args, **kwargs):
 		# not sure if this is right

@@ -22,7 +22,7 @@ import datetime
 import requests
 import itertools
 from collections import Counter
-from data.notif_views import addNotification
+from data.notif_views import updateNotification
 from data.views import updateQuestionObjectQueue
 
 def getGender(questionObject):

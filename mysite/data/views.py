@@ -20,6 +20,7 @@ from data.models import ProductType
 from data.models import QuestionObject
 from data.models import QuestionQueue
 from data.models import UserGeneratedQuestion
+from data.models import TrainingAnswer, TrainingQuestion, TrainingProduct
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
@@ -34,7 +35,7 @@ from collections import Counter
 import httplib2
 import oauth2
 import time
-from data.notif_views import addNotification
+from data.notif_views import updateNotification
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from top_friends import get_top_friends
