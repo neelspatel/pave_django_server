@@ -43,7 +43,7 @@ class User(models.Model):
         facebookID = models.CharField(max_length=200, primary_key=True)
         socialIdentity = models.TextField(blank=True)
         profile = models.TextField(blank=True)
-	topFriends = ListField()
+	topFriends = ListField(blank=True)
         friends = ListField()
         names = ListField()
         genders = ListField()
