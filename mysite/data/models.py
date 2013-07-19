@@ -56,8 +56,11 @@ class User(models.Model):
 		notif = Notification.objects.create(user=self)
 
         def __unicode__(self):
-                return str(json.loads(self.profile)["name"])
-
+                try:
+			name = str(json.loads(self.profile)["name"])
+		except:
+			name = self.facebookID
+		return name
 class Notification(models.Model):
 	user = models.ForeignKey(User)
 	number_answers = models.IntegerField(default=0)
