@@ -19,6 +19,7 @@ from data.models import TrendingObject
 from data.models import ProductType
 from data.models import QuestionObject
 from data.models import QuestionQueue
+from data.models import UserGeneratedQuestion
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
@@ -135,12 +136,13 @@ def numberOfNewObjects(request, user_id, time_since):
 #	else:
 #		most_recent = calendar.timegm(datetime.datetime.utcnow().utctimetuple())	
 	return HttpResponse(json.dumps({'count': count, 'last':most_recent}), mimetype='application/json')
+
 @csrf_exempt
 def getProfileStats(request, user_id):
-	current_user = User.objects.get(pk=user_id)
         vote_count = Answer.objects.filter(fromUser = user_id).count()
-	answer_count = Answer.objects.filter(forUser = current_user).count()
-	ug_question_count = UserGeneratedQuestion.objects.filter(byUser = current_user).count()
+	answer_count = Answer.objects.filter(forFacebookId = user_id).count()
+	ug_question_count = UserGeneratedQuestion.objects.filter(user = user_id).count()
+	
 	data = {"vote_count": vote_count, "answer_count": answer_count, "ug_question_count": ug_question_count}
         return HttpResponse(json.dumps(data), mimetype='application/json')
 

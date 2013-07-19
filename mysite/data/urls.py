@@ -8,7 +8,7 @@ urlpatterns = patterns('',
 	# Profile Logic
         url(r'^getreclist/(?P<user_id>\w+)/$', rec_views.getRecList, name = "getreclist"),
         url(r'^getugquestionslist/(?P<user_id>\w+)/$', ugviews.getUGQuestionsList, name = "getugquestionlist"),
-	url(r'^getprofilestats/(?P<user_id>\w+)/$', views.getProfileStats, name='getprofilestats')	
+	url(r'^getprofilestats/(?P<user_id>\w+)/$', views.getProfileStats, name='getprofilestats'),
 
 	# User Generated Upload 
 	url(r'uploadImage', views.uploadImage, name = "uploadProductImage"),
