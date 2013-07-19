@@ -80,3 +80,29 @@ def saveUGAnswer(json_ug_answer, user_id):
 		wrongUGProduct = UserGeneratedProduct.objects.get(pk=json_ug_answer["wrong"]),
 		question = UserGeneratedQuestion.objects.get(pk=json_ug_answer["question"])
 	)
+
+@csrf_exempt
+def getUGQuestionsList(request, user_id):
+	current_user = User.objects.get(pk=user_id)
+	questions = UserGeneratedQuestion.objects.filter(user=current_user)
+	data= []
+	for q in questions:
+		data.append({
+				"question_text": q.text,
+				"fbFriend1": q.fbFriend1,
+				"fbFriend2": q.fbFriend2,
+				"product_1": q.product1.id,
+				"product_2": q.product2.id,
+				"product_1_count": q.product1_count,
+				"product_2_count": q.product2_count,
+				"product_1_url": q.product1.fileURL,
+				"product_2_url": q.product2.fileURL,
+				"question_id": q.id
+			})
+	
+	response = HttpResponse(json.dumps(data), mimetype="application/json")
+	response["Access-Control-Allow-Origin"] = "*"
+	response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+	response["Access-Control-Max-Age"] = "1000"
+	response["Access-Control-Allow-Headers"] = "*"
+   	return response

@@ -19,6 +19,7 @@ from data.models import TrendingObject
 from data.models import ProductType
 from data.models import QuestionObject
 from data.models import QuestionQueue
+from data.models import UserGeneratedQuestion
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
@@ -36,6 +37,7 @@ import time
 from data.notif_views import addNotification
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
+from top_friends import get_top_friends
 
 #for uploading a single file to s3 from a client somewhere
 @csrf_exempt
@@ -134,6 +136,16 @@ def numberOfNewObjects(request, user_id, time_since):
 #	else:
 #		most_recent = calendar.timegm(datetime.datetime.utcnow().utctimetuple())	
 	return HttpResponse(json.dumps({'count': count, 'last':most_recent}), mimetype='application/json')
+
+@csrf_exempt
+def getProfileStats(request, user_id):
+        vote_count = Answer.objects.filter(fromUser = user_id).count()
+	answer_count = Answer.objects.filter(forFacebookId = user_id).count()
+	ug_question_count = UserGeneratedQuestion.objects.filter(user = user_id).count()
+	
+	data = {"vote_count": vote_count, "answer_count": answer_count, "ug_question_count": ug_question_count}
+        return HttpResponse(json.dumps(data), mimetype='application/json')
+
 
 @csrf_exempt
 def numberOfAnswersGiven(request, user_id):
@@ -327,6 +339,45 @@ def getFriendWithValidName(current_user, gender = None):
 			name = ""
 
 	return {"name": name, "facebook_id": current_friend}
+
+# Top Friends method
+@csrf_exempt
+def getFriendWithValidNameTopFriends(current_user, gender = None):
+	MUTUAL_FRIEND_PROB = 0.8
+	TOP_FRIEND_PROB = 0.9
+	name = ""
+	while name == "":
+		if len(current_user.topFriends) == 0:
+			if len(current_user.friends) > 100:
+				decision = random.random()
+				if decision < MUTUAL_FRIEND_PROB:
+					index = random.randint(0, 100-1)
+				else:
+					index = random.randint(100,len(current_user.friends) - 1)		
+			else:	
+				index = random.randint(0,len(current_user.friends) - 1)
+		else:
+			decision = random.random()
+			if decision < TOP_FRIEND_PROB:
+				top_friends_index = random.randint(0, len(current_user.topFriends) - 1)
+				index = current_user.friends.index(current_user.topFriends[top_friends_index])
+			else:
+				index = random.randint(0,len(current_user.friends) - 1)
+				
+		# check gender
+		if gender:
+			if not (gender == str(current_user.genders[index])):
+				name = ""
+				continue
+		
+		current_friend = str(current_user.friends[index])
+		name = current_user.names[index]
+		#checks if it is a valid name (in a very hackish way)
+		if name != name.decode('utf8'):
+			name = ""
+
+	return {"name": name, "facebook_id": current_friend}
+
 
 @csrf_exempt
 def updateQuestionObjectQueue(current_user, count=100, replace=False):
@@ -739,9 +790,6 @@ def detail(request):
 
 @csrf_exempt
 def newAnswer(request):
-#       response = HttpResponse(serializers.serialize("json", request))
-#       return response
-
         response = HttpResponse(str(request.POST))
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
@@ -750,20 +798,25 @@ def newAnswer(request):
         #return response
 
         if request.method == 'POST':
-#                obj, created = User.objects.get_or_create(facebookID=request.POST['id_facebookID'])
-#		obj = Answer()
-                obj = Answer.objects.create(
-			fromUser = User.objects.get(pk=request.POST['id_facebookID']),             
-                	forFacebookId = request.POST['id_forFacebookID'],
-                	#obj.socialIdentity =  request.POST['id_socialIdentity']
-                	chosenProduct =  Product.objects.get(pk=request.POST['id_chosenProduct']),
-			wrongProduct =  Product.objects.get(pk=request.POST['id_wrongProduct']),
-			question = Question.objects.get(pk=request.POST['id_question']),
-		)
-#                obj.save()
+		try:
+			anonymous_id = request.POST["is_anonymous"]	
+			obj = Answer.objects.create(
+				fromUser = User.objects.get(pk=request.POST['id_facebookID']),             
+				forFacebookId = request.POST['id_forFacebookID'],
+				chosenProduct =  Product.objects.get(pk=request.POST['id_chosenProduct']),
+				wrongProduct =  Product.objects.get(pk=request.POST['id_wrongProduct']),
+				question = Question.objects.get(pk=request.POST['id_question']),
+				anonymousUser = User.objects.get(pk=anonymous_id)
+			)
+		except:
+			obj = Answer.objects.create(
+				fromUser = User.objects.get(pk=request.POST['id_facebookID']),             
+				forFacebookId = request.POST['id_forFacebookID'],
+				chosenProduct =  Product.objects.get(pk=request.POST['id_chosenProduct']),
+				wrongProduct =  Product.objects.get(pk=request.POST['id_wrongProduct']),
+				question = Question.objects.get(pk=request.POST['id_question']),
+			)
 
-#               form = UserForm(request.POST)
-#               user =  form.save()             
 
                 response = HttpResponse(str(request.POST), mimetype = 'application/json')
                 response["Access-Control-Allow-Origin"] = "*"
@@ -772,6 +825,7 @@ def newAnswer(request):
                 response["Access-Control-Allow-Headers"] = "*"
                 return response
         return HttpResponse()
+
 @csrf_exempt
 def batchCreateQuestions(request):
 	if request.method == "POST":
@@ -904,7 +958,39 @@ def getListQuestionsForPersonalityType(request, user_id):
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
         response["Access-Control-Max-Age"] = "1000"
         response["Access-Control-Allow-Headers"] = "*"	
-	return response 
+	return response
+
+@csrf_exempt 
+def createUser(request):
+	if request.method == 'POST':
+		
+		obj, created = User.objects.get_or_create(facebookID=int(request.POST['id_facebookID']))
+		obj.facebookID = int(request.POST['id_facebookID'])
+		#obj.socialIdentity =  request.POST['id_socialIdentity']
+		obj.profile =  request.POST['id_profile']
+		obj.friends =  request.POST['id_friends']
+		obj.genders = request.POST['id_genders']
+		obj.names = request.POST['id_names']
+		try:
+			if request.POST['id_mutual_friend_count']:
+				obj.mutual_friend_count = request.POST['id_mutual_friend_count']
+		except:
+				obj.mutual_friend_count = []
+		obj.save()
+		try:
+			access_token = request.POST["access_token"]
+			obj.topFriends = get_top_friends(access_token)
+			obj.save()
+		except:
+			return HttpResponse("Could not process top friends")
+			
+		response = HttpResponse("[{}]", mimetype = 'application/json')
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+                return response
+	return HttpResponse()
 
 @csrf_exempt
 def newUser(request):

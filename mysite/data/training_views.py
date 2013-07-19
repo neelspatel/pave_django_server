@@ -29,6 +29,8 @@ import calendar
 import requests
 import itertools
 from process_images import process_image
+from collections import Counter
+from data.views import random_combinations
 
 # THIS IS FOR TRAINING PURPOSES
 @csrf_exempt
@@ -114,7 +116,7 @@ def getRecsListQuestions(request, user_id):
 @csrf_exempt
 def getTrainingListQuestions(request, user_id):
 	current_user = User.objects.get(pk=user_id)
-	profile = json.laods(current_user.profile)
+	profile = json.loads(current_user.profile)
 	gender = profile['gender']
 	name = profile['name']
 
@@ -129,11 +131,10 @@ def getTrainingListQuestions(request, user_id):
 		curr_len = TrainingProduct.objects.filter(type=p_type).filter(on=True).count()
 		curr_products = TrainingProduct.objects.filter(type=p_type).filter(on=True)
 		p_types_products[p_type] = random_combinations(curr_products, curr_len, (num_training_questions * 2))
-				
+			
 	if p_types_products:
 		qq_list = []
 		for question in q_list:
-			# add a new object to the QuestionObject for the current user
 			# package for the client			
 			# deal with male female
 			if question.type.text.endswith("_male"):
@@ -158,7 +159,7 @@ def getTrainingListQuestions(request, user_id):
 				question_text = question.text
 			json_q = {
 				"currentQuestion":question.id,
-				"name": q.aboutFriendName,
+				"name": name,
 				"product1": product1.id,
 				"product2": product2.id,
 				"image1": product1.fileURL,
