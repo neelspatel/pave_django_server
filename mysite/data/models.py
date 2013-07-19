@@ -61,13 +61,15 @@ class User(models.Model):
 		except:
 			name = self.facebookID
 		return name
+
+
 class Notification(models.Model):
 	user = models.ForeignKey(User)
 	number_answers = models.IntegerField(default=0)
 	number_ug_answers = models.IntegerField(default=0)
 	number_recs = models.IntegerField(default=0)
 	status_score = models.IntegerField(default=0)		
-	number_answers = models.IntegerField(default=0)
+	answers_since_update = models.IntegerField(default=0)
 	last_rec_update = models.DateTimeField(null=True)
 	rec_ready = models.BooleanField(default=False)
 	#scale = models.FloatField(default = 1.0)
@@ -78,11 +80,19 @@ class Notification(models.Model):
 			response = updateRecVector(self.user.pk)	
 		super(Notification, self).save(*args, **kwargs)
 		
-class Recommendation(models.Model):
-	user = models.ForeignKey(User)
+class ToRecommend(models.Model):
 	url = models.CharField(max_length=200)
 	text = models.CharField(max_length=200)
-	
+
+	def __unciode__(self):
+		return self.url
+
+class Recommendation(models.Model):
+	user = models.ForeignKey(User)
+	rec = models.ForeignKey(ToRecommend)
+	delivered = models.BooleanField(default=False)	
+
+
 # Create your models here
 class ProductType(models.Model):
 	text = models.CharField(max_length=200)

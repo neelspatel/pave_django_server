@@ -5,6 +5,9 @@ urlpatterns = patterns('',
 	# Get Notifications
 	url(r'^getnotification/(?P<user_id>\w+)/$', notif_views.getNotifications, name = "getnotifications"),
 
+	# Get new Recommendation
+	url(r'^getnewrec/(?P<user_id>\w+)/$', rec_views.getNewRec, name = "getnewrec"),
+
 	# Profile Logic
         url(r'^getreclist/(?P<user_id>\w+)/$', rec_views.getRecList, name = "getreclist"),
         url(r'^getugquestionslist/(?P<user_id>\w+)/$', ugviews.getUGQuestionsList, name = "getugquestionlist"),

@@ -9,7 +9,7 @@ import simplejson as json
 from django.db.models import F
 from django.core import serializers
 from data.models import Notification, User
-from notif_views import *
+import data.rec_views as rec_utils
 
 @csrf_exempt
 def getNotifications(request, user_id):
@@ -19,7 +19,8 @@ def getNotifications(request, user_id):
 		data = {"status_score": notification.status_score, "answers": notification.number_answers, "ug_answers": notification.number_ug_answers, "recs": notification.number_recs}
 	except Notification.DoesNotExist:
 		data = {"status_score": 0, "answers": 0, "ug_answers": 0, "recs": 0}
-	data = {"answers": 4, "ug_answers": 5, "recs": 12}	
+	
+	#data = {"answers": 4, "ug_answers": 5, "recs": 12}	
 	
 	# reset notification
 	notification.number_answers = 0
@@ -35,7 +36,7 @@ def getNotifications(request, user_id):
 	return response
 
 
-def updateNotification(user, notif, reset=False):
+def updateNotification(user, notif_type, reset=False):
 	current_user = user
 	notif = notif_type[0]
 	notification = Notification.objects.get(user=current_user)
@@ -43,16 +44,26 @@ def updateNotification(user, notif, reset=False):
 		setattr(notification, notif, 0)
 	else:			
 		amt = notif_type[1]
-		notification.save()
 		setattr(notification, notif, F(notif) + amt)
+	
+	if notif == "answers_since_update":
+		if ((notification.answers_since_update % 5) == 0 and (not notification.rec_ready)):
+			rec_ready = rec_utils.updateRecVector(user.pk)
+			if rec_ready:
+				notification.rec_ready = True
+	notification.save()
 	return True
 
 # Use this function to update a status score
 def updateStatusScore(user, action):
 	# on a scale to 100
 	stages = {"early": 20, "middle": 50, "danger": 80, "final": 90} 
-	actions = {"training": 0, "": 1, "": 2}	
+	actions = {"training": 0, "answer_recieved": 1, "answer_given": 2}	
 	rate = (15, 10, 3)
+
+	# if an answer was given about this user 
+	if action in ["training", "answer_recieved"]:
+		updateNotification(user, ("answers_since_update", 1))
 
 	notif = Notification.objects.get(user=user)
 	old_status_score = notif.status_score
@@ -70,6 +81,5 @@ def updateStatusScore(user, action):
 		else:
 			scale = 2
 	increase = int(scale * rate[actions[action]])	
-	addNotification(user, ("status_score", increase))
-
+	upateNotification(user, ("status_score", increase))
 

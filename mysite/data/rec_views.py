@@ -23,27 +23,49 @@ import datetime
 import calendar
 import requests
 import itertools
+import notif_views as notif_utils
 
 PROCESSING_URL = "ec2-54-218-218-2.us-west-2.compute.amazonaws.com/data/"
 
 @csrf_exempt
 def updateRecVector(user_id):
-	try:
-		current_user = User.objects.get(pk=user_id)
-		url = PROCESSING_URL + "updaterecvector/" + user_id + "/"
-		r = requests.post(url)
-		notif, created = Notification.objects.get_or_create(user = User.objects.get(pk=user_id))
+	TOP_PERCENTILE = 1.0
+	THRESHOLD = 0.0
+	
+	# first check if the user already has a rec queued up
+	if Notification.objects.get(user=user_id).is_ready:
+		return True
+	
+	current_user = User.objects.get(pk=user_id)
+	url = PROCESSING_URL + "generaterecmodel/" + user_id + "/"
+	r = requests.post(url)
+	
+	new_recs = json.loads(r.text)
+	# list of tuples 
+	# determine if  there are any unique ones
+	all_rec_ids = list(Recommendations.objects.filter(user=user_id).values_list('rec', flat=True))
+	limit = len(new_recs) * TOP_PERCENTILE
+	is_ready = False
+	for i in range(limit):
+		if new_recs[i][0] not in all_rec_ids:
+			if new_recs[i][2] > THRESHOLD:
+				is_ready = True
+				rec = new_recs[i][2]
+
+	# determine if the notification is ready and return True or False				
+	notif = Notification.objects.get(user=user_id)
+	if is_ready:
+		Recommendation.objects.create(user=user_id, rec = rec, delivered = False)
+		notif = Notification.objects.get(user=user_id)
+		notif.is_ready = True
 		notif.last_rec_update = datetime.datetime.now()
-		# inform the notification if a new recomendation is ready
-		
 		notif.save()
 		return True
-	except:
+	else:	
+		notif = Notification.objects.get(user = user_id)
+		notif.last_rec_update = datetime.datetime.now()
+		notif.save()
 		return False
-
-
-def isUnique(rec_dict, user_id):
-	print "yup"
 
 @csrf_exempt
 def getRecList(request, user_id):
@@ -59,5 +81,10 @@ def getRecList(request, user_id):
 	response["Access-Control-Allow-Headers"] = "*"
 	return response
 
+@csrf_exempt
+def getNewRec(request, user_id):
+	new_rec = Recommendation.objects.filter(user=user_id).filter(delivered=False)[0]
+	new_rec.delivered = True
+	new_rec.save()
+	return HttpResponse(json.dumps({"url": new_rec.url, "text": new_rec.text}), mimetype="application/json")
 
-	
