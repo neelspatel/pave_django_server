@@ -790,9 +790,6 @@ def detail(request):
 
 @csrf_exempt
 def newAnswer(request):
-#       response = HttpResponse(serializers.serialize("json", request))
-#       return response
-
         response = HttpResponse(str(request.POST))
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
@@ -801,20 +798,25 @@ def newAnswer(request):
         #return response
 
         if request.method == 'POST':
-#                obj, created = User.objects.get_or_create(facebookID=request.POST['id_facebookID'])
-#		obj = Answer()
-                obj = Answer.objects.create(
-			fromUser = User.objects.get(pk=request.POST['id_facebookID']),             
-                	forFacebookId = request.POST['id_forFacebookID'],
-                	#obj.socialIdentity =  request.POST['id_socialIdentity']
-                	chosenProduct =  Product.objects.get(pk=request.POST['id_chosenProduct']),
-			wrongProduct =  Product.objects.get(pk=request.POST['id_wrongProduct']),
-			question = Question.objects.get(pk=request.POST['id_question']),
-		)
-#                obj.save()
+		try:
+			anonymous_id = request.POST["is_anonymous"]	
+			obj = Answer.objects.create(
+				fromUser = User.objects.get(pk=request.POST['id_facebookID']),             
+				forFacebookId = request.POST['id_forFacebookID'],
+				chosenProduct =  Product.objects.get(pk=request.POST['id_chosenProduct']),
+				wrongProduct =  Product.objects.get(pk=request.POST['id_wrongProduct']),
+				question = Question.objects.get(pk=request.POST['id_question']),
+				anonymousUser = User.objects.get(pk=anonymous_id)
+			)
+		except:
+			obj = Answer.objects.create(
+				fromUser = User.objects.get(pk=request.POST['id_facebookID']),             
+				forFacebookId = request.POST['id_forFacebookID'],
+				chosenProduct =  Product.objects.get(pk=request.POST['id_chosenProduct']),
+				wrongProduct =  Product.objects.get(pk=request.POST['id_wrongProduct']),
+				question = Question.objects.get(pk=request.POST['id_question']),
+			)
 
-#               form = UserForm(request.POST)
-#               user =  form.save()             
 
                 response = HttpResponse(str(request.POST), mimetype = 'application/json')
                 response["Access-Control-Allow-Origin"] = "*"
@@ -823,6 +825,7 @@ def newAnswer(request):
                 response["Access-Control-Allow-Headers"] = "*"
                 return response
         return HttpResponse()
+
 @csrf_exempt
 def batchCreateQuestions(request):
 	if request.method == "POST":

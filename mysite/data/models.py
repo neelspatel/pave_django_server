@@ -7,6 +7,7 @@ import ast
 import datetime
 import calendar
 from south.modelsinspector import add_introspection_rules
+import simplejson as json
 #from rec_views import updateRecVector
 
 add_introspection_rules([], ["^data\.models\.ListField"])
@@ -55,7 +56,7 @@ class User(models.Model):
 		notif = Notification.objects.create(user=self)
 
         def __unicode__(self):
-                return str(self.facebookID)
+                return str(json.loads(self.profile)["name"])
 
 class Notification(models.Model):
 	user = models.ForeignKey(User)
