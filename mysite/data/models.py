@@ -161,6 +161,7 @@ class Answer(models.Model):
 	chosenProduct = models.ForeignKey(Product, related_name = 'chosenProduct')
 	wrongProduct = models.ForeignKey(Product, related_name = 'wrongProduct')
 	question = models.ForeignKey(Question, related_name = 'question')
+	anonymousUser = models.ForeignKey(User, null=True, related_name = 'a_user')
 	created_at = models.DateTimeField(auto_now_add = True)
 
 	def save(self, *args, **kwargs):
