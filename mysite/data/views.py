@@ -790,32 +790,39 @@ def detail(request):
 
 @csrf_exempt
 def newAnswer(request):
-        response = HttpResponse(str(request.POST))
-        response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-        response["Access-Control-Max-Age"] = "1000"
-        response["Access-Control-Allow-Headers"] = "*"
-        #return response
-
         if request.method == 'POST':
-		try:
-			anonymous_id = request.POST["is_anonymous"]	
-			obj = Answer.objects.create(
-				fromUser = User.objects.get(pk=request.POST['id_facebookID']),             
-				forFacebookId = request.POST['id_forFacebookID'],
-				chosenProduct =  Product.objects.get(pk=request.POST['id_chosenProduct']),
-				wrongProduct =  Product.objects.get(pk=request.POST['id_wrongProduct']),
-				question = Question.objects.get(pk=request.POST['id_question']),
-				anonymousUser = User.objects.get(pk=anonymous_id)
+		from_user = User.objects.get(request.POST["id_facebookID"])
+		forFacebookId = request.POST["id_forFacebookID"]
+		chosen_product_id = request.POST["id_chosenProduct"]
+		wrong_product_id = request.POST["id_wrongProduct"]
+		question_id = request.POST["id_question"]
+
+		if "is_training" in request.POST:
+			obj = TrainingAnswer.objects.create(
+				user = from_user,
+				wrongProduct=  TrainingProduct.objects.get(pk=wrong_product_id),
+				chosenProduct = TrainingProduct.objects.get(pk=chosen_product_id),
+				question = TrainingQuestion.objects.get(pk=question_id)			
 			)
-		except:
-			obj = Answer.objects.create(
-				fromUser = User.objects.get(pk=request.POST['id_facebookID']),             
-				forFacebookId = request.POST['id_forFacebookID'],
-				chosenProduct =  Product.objects.get(pk=request.POST['id_chosenProduct']),
-				wrongProduct =  Product.objects.get(pk=request.POST['id_wrongProduct']),
-				question = Question.objects.get(pk=request.POST['id_question']),
-			)
+		else:
+			if "is_anonymous" in request.POST:
+				anonymous_id = request.POST["is_anonymous"]	
+				obj = Answer.objects.create(
+					fromUser = from_user
+					forFacebookId = forFacebookId,
+					chosenProduct =  Product.objects.get(pk=chosen_product_id),
+					wrongProduct =  Product.objects.get(pk=wrong_product_id),
+					question = Question.objects.get(pk=question_id),
+					anonymousUser = User.objects.get(pk=anonymous_id)
+				)
+			else:
+				obj = Answer.objects.create(
+					fromUser = from_user,
+					forFacebookId = forFacebookId,
+					chosenProduct =  Product.objects.get(pk=chosen_product_id),
+					wrongProduct =  Product.objects.get(pk=wrong_product_id)
+					question = Question.objects.get(pk=question_id),
+				)
 
 
                 response = HttpResponse(str(request.POST), mimetype = 'application/json')
