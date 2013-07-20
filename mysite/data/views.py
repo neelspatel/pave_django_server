@@ -38,7 +38,7 @@ import time
 from data.notif_views import updateNotification
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
-from top_friends import get_top_friends
+from top_friends import get_top_friends, get_friends, get_profile
 
 #for uploading a single file to s3 from a client somewhere
 @csrf_exempt
