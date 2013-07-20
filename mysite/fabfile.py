@@ -12,6 +12,7 @@ def prepare_deploy(branch_name = "staging"):
 	pull("master")
 	local ('git checkout master && git merge ' + branch_name)
 	push("master")
+	local("git checkout " + branch_name)
 
 def pull (branch_name):
 	local("git pull origin " + branch_name)
