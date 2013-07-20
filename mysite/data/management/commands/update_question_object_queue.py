@@ -104,7 +104,7 @@ class Command(BaseCommand):
 
 
 	def handle(self, *args, **options):
-		
+		self.stdout.write("In handle")		
 		MIN_QUESTIONS = 500
 
 		# algorithm for getting random questions
