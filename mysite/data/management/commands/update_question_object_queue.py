@@ -8,7 +8,7 @@ class Command(BaseCommand):
 	args = '<>'
 	help = 'Finds the top trending questions and saves them to WoldWide'
 	
-	def getFriendWithValidName(self, current_user, gender = None):
+	def getFriendWithValidName(self, current_user, gender = None, gender_lists = None):
 		MUTUAL_FRIEND_PROB = 0.8
 		name = ""
 		while name == "":
@@ -21,6 +21,7 @@ class Command(BaseCommand):
 				else:
 					index = random.randint(100,len(current_user.friends) - 1)
 			if gender:
+				self.stdout.write(gender)
 				if not (gender == str(current_user.genders[index])):
 					name = ""
 					continue
@@ -29,7 +30,6 @@ class Command(BaseCommand):
 			#checks if it is a valid name (in a very hackish way)
 			if name != name.decode('utf8'):
 				name = ""
-
 		return {"name": name, "facebook_id": current_friend}
 
 	def random_combinations(self, iterable, length, num):
@@ -42,32 +42,54 @@ class Command(BaseCommand):
 
 	def updateQuestionObjectQueue(self, current_user, count=100, replace=False):
 		# maybe very slow
+		self.stdout.write("About to get questions")
 		q_list = Question.objects.filter(on = True).order_by("?")[:count]
+		self.stdout.write("Got question iterator for user: " + str(current_user) )
 		# get unique product types
 		p_types_counter = Counter([question.type for question in q_list])
 		p_types_products = {}
 		for p_type, count in p_types_counter.iteritems():
 			 # get a list of pairs of two random products of the given product time
+			self.stdout.write("Next Product")
 			curr_len = Product.objects.filter(type=p_type).filter(on=True).count()
 			curr_products = Product.objects.filter(type=p_type).filter(on=True)
 			p_types_products[p_type] = self.random_combinations(curr_products, curr_len, (count * 2))
-					
+		self.stdout.write("Done counting p_types")
+		
 		if p_types_products:
 			# delete all of the questions for this user
 			if replace:
 				QuestionObject.objects.filter(toUser=current_user).delete()
 				
-			# we got a non-empty dictionary
+
+			male_friends = []
+			female_friends = []
+			for i in range(len(current_user.friends)):
+				if current_user.genders[i] == "male":
+					male_friends.append(current_user.friends[i])
+				else:
+					female_friends.append(current_user.friends[i])			
+			
 			qq_list = []
 			for question in q_list:
+				#self.stdout.write("On Question: " + question.text)
 				# add a new object to the QuestionObject for the current user
 				# package for the client			
 				# deal with male female
-				if question.text.endswith("_male"):
-					current_friend = self.getFriendWithValidName(current_user, "male")
-				elif question.text.endswith("female"):
-					 current_friend = self.getFriendWithValidName(current_user, "fenale")
+				if question.type.text.endswith("_male"):
+				#	self.stdout.write("Male")
+					if (len(male_friends) == 0):
+						self.stdout.write("Skipping male")
+						continue
+					current_friend = self.getFriendWithValidName(current_user, "male", (male_friends, female_friends))
+				elif question.type.text.endswith("female"):
+				#	self.stdout.write("Female") 
+					if (len(female_friends) == 0):
+						self.stdout.write("Skipping female")
+						continue
+					current_friend = self.getFriendWithValidName(current_user, "female", (male_friends, female_friends))
 				else:
+				#	self.stdout.write("Nuetral")
 					current_friend = self.getFriendWithValidName(current_user)
 				p_tuple = p_types_products[question.type].pop(0)
 				product1 = p_tuple[0]
@@ -100,11 +122,13 @@ class Command(BaseCommand):
 					product2Count = p2_count
 				)	
 				qq_list.append(q_q)
+				#self.stdout.write("Created q object")
 			return qq_list
 
 
 	def handle(self, *args, **options):
 		
+		self.stdout.write("In handle")
 		MIN_QUESTIONS = 500
 
 		# algorithm for getting random questions
@@ -114,8 +138,10 @@ class Command(BaseCommand):
 
 		# force evaluation of query set
 		for user in users:
+			self.stdout.write("On User: " + str(user))
 			qo_queue_count = QuestionObject.objects.filter(toUser = user).count()
+			self.stdout.write("Num QObjects are: " + str(qo_queue_count))
 			if qo_queue_count < MIN_QUESTIONS:
+				self.stdout.write("Need to update")
 				self.updateQuestionObjectQueue(user, MIN_QUESTIONS)
 				
-
