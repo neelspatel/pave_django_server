@@ -11,23 +11,26 @@ from django.core import serializers
 from data.models import Notification, User
 import data.rec_views as rec_utils
 
+# CHANGE THIS SHIT TO NOTHING
 @csrf_exempt
 def getNotifications(request, user_id):
 	current_user = User.objects.get(pk = user_id)
+	notif_exits = True
 	try:
 		notification = Notification.objects.get(user=current_user)
 		data = {"status_score": notification.status_score, "answers": notification.number_answers, "ug_answers": notification.number_ug_answers, "recs": notification.number_recs}
 	except Notification.DoesNotExist:
-		data = {"status_score": 0, "answers": 0, "ug_answers": 0, "recs": 0}
-	
+		data = {"status_score": 0, "answers": 1, "ug_answers": 1, "recs": 1}
+		notif_exists = False
 	#data = {"answers": 4, "ug_answers": 5, "recs": 12}	
 	
 	# reset notification
-	notification.number_answers = 0
-	notification.number_ug_answers = 0
-	notification.number_recs = 0
-	notification.save()
-	
+	if notif_exists:
+		notification.number_answers = 0
+		notification.number_ug_answers = 0
+		notification.number_recs = 0
+		notification.save()
+		
 	response = HttpResponse(json.dumps(data), mimetype="application/json")
 	response["Access-Control-Allow-Origin"] = "*"
 	response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"

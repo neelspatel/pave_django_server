@@ -39,6 +39,7 @@ from data.notif_views import updateNotification
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from top_friends import get_top_friends, get_friends, get_profile
+import cPickle as pickle
 
 #for uploading a single file to s3 from a client somewhere
 @csrf_exempt
@@ -121,7 +122,8 @@ def rebase(request):
 
 @csrf_exempt
 def index(request):
-	return HttpResponse("Hey, you're at the index for views in data")
+	a = pickle.load(open("test.p", 'rb'))
+	return HttpResponse("Hey, you're at the index for views in data " + str(a["data"]))
 
 @csrf_exempt
 def numberOfNewObjects(request, user_id, time_since):

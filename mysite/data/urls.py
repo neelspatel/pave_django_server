@@ -13,6 +13,7 @@ urlpatterns = patterns('',
         url(r'^getugquestionslist/(?P<user_id>\w+)/$', ugviews.getUGQuestionsList, name = "getugquestionlist"),
 	url(r'^getprofilestats/(?P<user_id>\w+)/$', views.getProfileStats, name='getprofilestats'),
 
+	url(r'index', views.index, name = "uploadProductImage"),
 	# User Generated Upload 
 	url(r'uploadImage', views.uploadImage, name = "uploadProductImage"),
         url(r'^imagesearch/(?P<query>\w+)/$', views.imagesearch, name = "imagesearch"),
