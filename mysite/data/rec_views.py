@@ -56,13 +56,11 @@ def updateRecVector(user_id):
 	notif = Notification.objects.get(user=user_id)
 	if is_ready:
 		Recommendation.objects.create(user=user_id, rec = rec, delivered = False)
-		notif = Notification.objects.get(user=user_id)
 		notif.is_ready = True
 		notif.last_rec_update = datetime.datetime.now()
 		notif.save()
 		return True
 	else:	
-		notif = Notification.objects.get(user = user_id)
 		notif.last_rec_update = datetime.datetime.now()
 		notif.save()
 		return False
@@ -72,8 +70,8 @@ def getRecList(request, user_id):
 	current_user = User.objects.get(pk=user_id)
 	recs = Recommendation.objects.filter(user=current_user)
 	data = []
-	for rec in recs:
-		data.append({"url": rec.url, "text": rec.text})
+	for user_rec in recs:
+		data.append({"url": user_rec.rec.url, "text": user_rec.rec.text})
 	response = HttpResponse(json.dumps(data), mimetype='application/json')
 	response["Access-Control-Allow-Origin"] = "*"
 	response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"

@@ -380,7 +380,6 @@ def getFriendWithValidNameTopFriends(current_user, gender = None):
 	return {"name": name, "facebook_id": current_friend}
 
 
-@csrf_exempt
 def updateQuestionObjectQueue(current_user, count=100, replace=False):
 	# maybe very slow
 	q_list = Question.objects.filter(on = True).order_by("?")[:count]
@@ -392,12 +391,25 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 		curr_len = Product.objects.filter(type=p_type).filter(on=True).count()
 		curr_products = Product.objects.filter(type=p_type).filter(on=True)
 		p_types_products[p_type] = random_combinations(curr_products, curr_len, (count * 2))
-				
+
+	
+	
+		
 	if p_types_products:
 		# delete all of the questions for this user
 		if replace:
 			QuestionObject.objects.filter(toUser=current_user).delete()
-			
+
+		
+
+		male_friends = []
+		female_friends = []
+		for i in range(len(current_user.friends)):
+			if current_user.genders[i] == "male":
+				male_friends.append(current_user.friends[i])
+			else:
+				male_friends.append(current_user.friends[i])
+				
 		# we got a non-empty dictionary
 		qq_list = []
 		for question in q_list:
@@ -405,9 +417,13 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 			# package for the client			
 			# deal with male female
 			if question.type.text.endswith("_male"):
+				if (len(male_friends) == 0):
+					continue
 				current_friend = getFriendWithValidName(current_user, "male")
 			elif question.type.text.endswith("_female"):
-				 current_friend = getFriendWithValidName(current_user, "fenale")
+				if(len(female_friends) == 0):
+					continue 
+				current_friend = getFriendWithValidName(current_user, "female")
 			else:
 				current_friend = getFriendWithValidName(current_user)
 			p_tuple = p_types_products[question.type].pop(0)
