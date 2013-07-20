@@ -143,8 +143,8 @@ def getProfileStats(request, user_id):
         vote_count = Answer.objects.filter(fromUser = user_id).count()
 	answer_count = Answer.objects.filter(forFacebookId = user_id).count()
 	ug_question_count = UserGeneratedQuestion.objects.filter(user = user_id).count()
-	
-	data = {"vote_count": vote_count, "answer_count": answer_count, "ug_question_count": ug_question_count}
+	level = User.objects.get(pk=user_id).level	
+	data = {"vote_count": vote_count, "answer_count": answer_count, "ug_question_count": ug_question_count, "level": level}
         return HttpResponse(json.dumps(data), mimetype='application/json')
 
 

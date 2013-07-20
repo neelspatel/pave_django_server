@@ -43,12 +43,13 @@ class User(models.Model):
         facebookID = models.CharField(max_length=200, primary_key=True)
         socialIdentity = models.TextField(blank=True)
         profile = models.TextField(blank=True)
-	topFriends = ListField(blank=True)
+	topFriends = ListField(blank=True, null=True)
         friends = ListField()
         names = ListField()
         genders = ListField()
 	mutual_friend_count = ListField(blank=True)
         friendsInApp = ListField(blank=True)
+	level = models.IntegerField(default=1)
 
         def save(self, *args, **kwargs):
                 self.friendsInApp = list ( set(self.friends).intersection(set( [int(x) for x in [ o.pk for o in User.objects.all()]] )))

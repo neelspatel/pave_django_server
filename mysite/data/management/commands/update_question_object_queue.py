@@ -4,7 +4,6 @@ from collections import Counter
 import random
 
 class Command(BaseCommand):
-
 	args = '<>'
 	help = 'Finds the top trending questions and saves them to WoldWide'
 	
