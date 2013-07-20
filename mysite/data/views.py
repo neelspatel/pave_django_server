@@ -810,18 +810,39 @@ def newAnswer(request):
         if request.method == 'POST':
 		from_user = User.objects.get(pk = request.POST["id_facebookID"])
 		forFacebookId = request.POST["id_forFacebookID"]
+		
+		is_user = False
+		if User.objects.filter(pk=forFacebookId).exists():
+			is_user = True			
+
 		chosen_product_id = request.POST["id_chosenProduct"]
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
 
-		if "is_training" in request.POST:
+		if "is_ug" in request.POST:
+			obj = UserGeneratedAnswer.objects.create(
+				fromUser = from_user,
+				forUser = User.objects.get(pk=forFacebookId),
+				chosenUGProduct = UserGeneratedProduct.objects.get(pk=chosen_product_id),
+				wrongUGProduct = UserGeneratedProduct.objects.get(pk=wrong_product_id),
+				question = UserGeneratedQuestion.objects.get(pk=question_id)
+			)
+			updateNotification(forFacebookId, ("number_ug_answers", 1))
+
+		elif "is_training" in request.POST:
 			obj = TrainingAnswer.objects.create(
 				user = from_user,
 				wrongProduct=  TrainingProduct.objects.get(pk=wrong_product_id),
 				chosenProduct = TrainingProduct.objects.get(pk=chosen_product_id),
 				question = TrainingQuestion.objects.get(pk=question_id)			
 			)
+			updateStatusScore(user, "training")
 		else:
+			if is_user:
+				updateNotification(forFacebookId, ("number_answers", 1))
+				updateStatusScore(forFacebookId, "answer_recieved")
+			updateStatusScore(from_user, "answer_given")
+				
 			if "is_anonymous" in request.POST:
 				anonymous_id = request.POST["is_anonymous"]	
 				obj = Answer.objects.create(
@@ -848,7 +869,7 @@ def newAnswer(request):
                 response["Access-Control-Max-Age"] = "1000"
                 response["Access-Control-Allow-Headers"] = "*"
                 return response
-        return HttpResponse()
+        return HttpResponse("Not a POST request")
 
 @csrf_exempt
 def batchCreateQuestions(request):

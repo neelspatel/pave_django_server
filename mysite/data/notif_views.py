@@ -45,7 +45,8 @@ def updateNotification(user, notif_type, reset=False):
 	else:			
 		amt = notif_type[1]
 		setattr(notification, notif, F(notif) + amt)
-	
+
+	# update status score takes care of passing this in	
 	if notif == "answers_since_update":
 		if ((notification.answers_since_update % 5) == 0 and (not notification.rec_ready)):
 			rec_ready = rec_utils.updateRecVector(user.pk)
