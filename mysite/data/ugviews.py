@@ -67,7 +67,7 @@ def createUGQuestion(request, user_id):
 			current_friend = User.objects.get(pk = friend_id)
 			current_friend_qq = QuestionQueue.objects.create(toUser=current_friend, byUser=current_user, question=ug_question, on=True)				
 		
-		return HttpResponse("looks like it worked", mimetype="application/json")
+		return HttpResponse(json.dumps("looks like it worked"), mimetype="application/json")
 
 	return HttpResponse("Not a POST request")
 	
