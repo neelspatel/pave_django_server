@@ -15,7 +15,7 @@ import data.rec_views as rec_utils
 @csrf_exempt
 def getNotifications(request, user_id):
 	current_user = User.objects.get(pk = user_id)
-	notif_exits = True
+	notif_exists = True
 	try:
 		notification = Notification.objects.get(user=current_user)
 		data = {"status_score": notification.status_score, "answers": notification.number_answers, "ug_answers": notification.number_ug_answers, "recs": notification.number_recs}
