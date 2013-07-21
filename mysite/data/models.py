@@ -56,7 +56,7 @@ class User(models.Model):
         def save(self, *args, **kwargs):
                 self.friendsInApp = list ( set(self.friends).intersection(set( [int(x) for x in [ o.pk for o in User.objects.all()]] )))
                 super(User, self).save(*args, **kwargs)
-		notif = Notification.objects.create(user=self)
+		notif = Notification.objects.get_or_create(user=self)
 
         def __unicode__(self):
                 try:
