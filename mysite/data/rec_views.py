@@ -72,6 +72,7 @@ def getRecList(request, user_id):
 	data = []
 	for user_rec in recs:
 		data.append({"url": user_rec.rec.url, "text": user_rec.rec.text})
+	data.reverse()
 	response = HttpResponse(json.dumps(data), mimetype='application/json')
 	response["Access-Control-Allow-Origin"] = "*"
 	response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"

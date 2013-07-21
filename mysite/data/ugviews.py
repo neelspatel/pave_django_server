@@ -81,6 +81,7 @@ def saveUGAnswer(json_ug_answer, user_id):
 		question = UserGeneratedQuestion.objects.get(pk=json_ug_answer["question"])
 	)
 
+
 @csrf_exempt
 def getUGQuestionsList(request, user_id):
 	current_user = User.objects.get(pk=user_id)
@@ -99,7 +100,7 @@ def getUGQuestionsList(request, user_id):
 				"product_2_url": q.product2.fileURL,
 				"question_id": q.id
 			})
-	
+	data.reverse()	
 	response = HttpResponse(json.dumps(data), mimetype="application/json")
 	response["Access-Control-Allow-Origin"] = "*"
 	response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
