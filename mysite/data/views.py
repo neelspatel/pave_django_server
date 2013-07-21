@@ -40,6 +40,7 @@ from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from top_friends import get_top_friends, get_friends, get_profile
 import cPickle as pickle
+import data.notif_views as notif_utils
 
 #for uploading a single file to s3 from a client somewhere
 @csrf_exempt
@@ -829,7 +830,7 @@ def newAnswer(request):
 				wrongUGProduct = UserGeneratedProduct.objects.get(pk=wrong_product_id),
 				question = UserGeneratedQuestion.objects.get(pk=question_id)
 			)
-			updateNotification(forFacebookId, ("number_ug_answers", 1))
+			notif_utils.updateNotification(forFacebookId, ("number_ug_answers", 1))
 
 		elif "is_training" in request.POST:
 			obj = TrainingAnswer.objects.create(
@@ -838,12 +839,12 @@ def newAnswer(request):
 				chosenProduct = TrainingProduct.objects.get(pk=chosen_product_id),
 				question = TrainingQuestion.objects.get(pk=question_id)			
 			)
-			updateStatusScore(user, "training")
+			notif_utils.updateStatusScore(user, "training")
 		else:
 			if is_user:
-				updateNotification(forFacebookId, ("number_answers", 1))
-				updateStatusScore(forFacebookId, "answer_recieved")
-			updateStatusScore(from_user, "answer_given")
+				notif_utils.updateNotification(forFacebookId, ("number_answers", 1))
+				notif_utils.updateStatusScore(forFacebookId, "answer_recieved")
+			notif_utils.updateStatusScore(from_user, "answer_given")
 				
 			if "is_anonymous" in request.POST:
 				anonymous_id = request.POST["is_anonymous"]	

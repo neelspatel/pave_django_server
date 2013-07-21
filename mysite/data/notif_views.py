@@ -85,5 +85,5 @@ def updateStatusScore(user, action):
 		else:
 			scale = 2
 	increase = int(scale * rate[actions[action]])	
-	upateNotification(user, ("status_score", increase))
+	updateNotification(user, ("status_score", increase))
 
