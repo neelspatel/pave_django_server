@@ -77,12 +77,6 @@ class Notification(models.Model):
 	rec_ready = models.BooleanField(default=False)
 	#scale = models.FloatField(default = 1.0)
 
-	def save(self, *args, **kwargs):
-		# not sure if this is right
-		if ((self.number_answers + 1) % 5) == 0:
-			response = updateRecVector(self.user.pk)	
-		super(Notification, self).save(*args, **kwargs)
-		
 class ToRecommend(models.Model):
 	url = models.CharField(max_length=200)
 	text = models.CharField(max_length=200)
