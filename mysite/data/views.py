@@ -24,6 +24,7 @@ from data.models import TrainingAnswer, TrainingQuestion, TrainingProduct
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
+from random import shuffle
 import logging
 import urllib
 import random
@@ -478,8 +479,8 @@ def newGetListQuestions(request, user_id):
 		has_ug_questions = True
 		# we have user generated questions for this user
 		if ug_question_queue_count < 20:
-			NUM_UG_QUESTIONS = ug_question_count
-		ug_questions = QuestionQueue.filter(toUser = current_user).order_by(created_at)[:NUM_UG_QUESTIONS]
+			NUM_UG_QUESTIONS = ug_question_queue_count
+		ug_questions = QuestionQueue.objects.filter(toUser = current_user).order_by("id")[:NUM_UG_QUESTIONS]
 	
 	# determine how many questions that we need to get 
 	num_questions = NUM_OBJECTS - NUM_UG_QUESTIONS
@@ -490,10 +491,13 @@ def newGetListQuestions(request, user_id):
 	else:
 		q_objects = QuestionObject.objects.filter(toUser=current_user)[:num_questions]
 
+
 	questions = list(q_objects)
 	if (has_ug_questions):
-		questions = shuffle(list(ug_questions) + questions) 
-		
+		questions  = list(ug_questions) + questions
+		shuffle(questions)
+	
+	
 	list_question_objects = []
 	for q in questions:
 		# determine if q is user_generated
@@ -525,8 +529,8 @@ def newGetListQuestions(request, user_id):
 				#"name":
 				"product1": q.question.product1.id,
 				"product2": q.question.product2.id,
-				"image1": q.question.product1.imageURL,
-				"image2": q.question.product2.imageURL,
+				"image1": q.question.product1.fileURL,
+				"image2": q.question.product2.fileURL,
 				"friend": q.byUser.facebookID,
 				"questionText": q.question.text
 			}
