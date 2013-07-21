@@ -278,17 +278,23 @@ class UserGeneratedAnswer(models.Model):
 
 class TrainingProductType(models.Model):
 	text = models.CharField(max_length=200)
+	def __unicode__(self):
+		return str(self.text)
 
 class TrainingProduct(models.Model):
 	on = models.BooleanField(default=True)
 	type = models.ForeignKey(TrainingProductType)
 	fileURL = models.CharField(max_length=200)
 	description= models.TextField(null=True)
+	def __unicode__(self):
+		return str(self.fileURL)
 	
 class TrainingQuestion(models.Model):
 	type = models.ForeignKey(TrainingProductType)
 	text = models.TextField()
 	on = models.BooleanField(default=True)
+	def __unicode__(self):
+		return str(self.text)
 
 class TrainingAnswer(models.Model):
 	user = models.ForeignKey(User)
@@ -296,7 +302,7 @@ class TrainingAnswer(models.Model):
 	chosenProduct = models.ForeignKey(TrainingProduct, related_name="t_chosen_product")
 	question = models.ForeignKey(TrainingQuestion, related_name="t_question")
 	created_at = models.DateTimeField(auto_now_add = True)
-	
+		
 	def save(self, *args, **kwargs):	
 		super (TrainingAnswer, self).save(*args, **kwargs)
 
