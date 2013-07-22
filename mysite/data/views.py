@@ -1203,7 +1203,7 @@ def createUser(request):
 		names = []
 		genders = []
 		friends = []
-		for friend_info in get_friends(oauth):
+		for friend_info in get_friends(access_token):
 			friends.append(friend_info["uid"])
 			names.append(friend_info["name"])
 			genders.append(friend_info["sex"])
