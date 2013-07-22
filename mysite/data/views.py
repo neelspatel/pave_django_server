@@ -1206,7 +1206,7 @@ def createUser(request):
 					"location": {"name": profile["location"]["name"]},
 					"birthday": profile["birthday"],
 					"relationship": profile["relationship_status"],
-					"facebookId": profile["facebookId"]
+					"facebookId": profile["id"]
 				}
 		
 		obj.profile = json.dumps(user_profile)
