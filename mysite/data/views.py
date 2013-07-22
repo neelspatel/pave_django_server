@@ -1197,7 +1197,19 @@ def createUser(request):
 		facebook_id = profile["id"]
 			
 		obj, created = User.objects.get_or_create(facebookID=int(facebook_id))
-		obj.profile = profile
+		
+		pic_url = "https://graph.facebook.com/" + facebook_id + "/picture?type=large&return_ssl_resources=1"
+		user_profile = {
+					"pictureURL": pic_url, 
+					"name": profile["name"],
+					"gender": profile["gender"],
+					"location": {"name": profile["location"]["name"]},
+					"birthday": profile["birthday"],
+					"relationship": profile["relationship_status"],
+					"facebookId": profile["facebookId"]
+				}
+		
+		obj.profile = json.dumps(user_profile)
 		obj.save()
 		
 		names = []
