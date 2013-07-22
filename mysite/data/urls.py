@@ -7,7 +7,10 @@ urlpatterns = patterns('',
 
 	# Get new Recommendation
 	url(r'^getnewrec/(?P<user_id>\w+)/$', rec_views.getNewRec, name = "getnewrec"),
+
+	# Agree with things in Profile
 	url(r'^agreewithrec/(?P<user_id>\w+)/$', rec_views.agreeWithRec, name = "agreewithrec"),
+	url(r'^agreewithanswer/(?P<user_id>\w+)/$', views.agreeWithAnswer, name = "agreewithanswer"),
 
 	# Profile Logic
         url(r'^getreclist/(?P<user_id>\w+)/$', rec_views.getRecList, name = "getreclist"),

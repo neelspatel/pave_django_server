@@ -931,6 +931,35 @@ def changeAnswer(request):
                 return response
         return HttpResponse("Not a POST request")
 
+@csrf_exempt
+def agreeWithAnswer(request, user_id):
+	if request.method == 'POST':
+		from_user = User.objects.get(pk=request.POST["id_facebookID"])
+		forFacebookId = request.POST["id_forFacebookId"]
+
+		chosen_product_id = request.POST["id_chosenProduct"]
+		wrong_product_id = request.POST["id_wrongProduct"]
+		question_id = request.POST["id_question"]
+
+		notif_utils.updateScore(from_user, "answer_recieved")
+	
+		obj = Answer.objects.create(
+			fromUser = from_user,
+			forFacebookId = forFacebookId,
+			chosenProduct = Product.objects.get(pk=chosen_product_id),
+			wrongProduct = Product.objects.get(pk=wrong_product_id),
+			question = Question.objects.get(pk=question_id)
+		)
+		
+		response = HttpResponse(str(request.POST), mimetype = 'application/json')
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+                return response
+	return HttpResponse("Not a POST request")	
+		
+	
 
 @csrf_exempt
 def newAnswer(request):
