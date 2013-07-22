@@ -36,9 +36,10 @@ urlpatterns = patterns('',
 	
 	# CREATE USER ENDPOINTS
 	# v1.0
-	url(r'newuser', views.newUser, name = 'newuser'),
+	url(r'^newuser', views.newUser, name = 'newuser'),
 	#v1.1
-	url(r'createuser', views.createUser, name = 'createuser'),
+	url(r'^createuser', views.createUser, name = 'createuser'),
+	url(r'^updateuser/(?P<user_id>\w+)/$', views.updateUser, name = 'updateuser'),
 	
 	url(r'batchcreateproducts', views.batchCreateProducts, name = 'batchcreateproducts'),
 	url(r'batchcreateanswers', views.batchCreateAnswers, name = 'batchcreateanswers'),

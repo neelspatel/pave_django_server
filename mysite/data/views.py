@@ -1161,30 +1161,61 @@ def getListQuestionsForPersonalityType(request, user_id):
         response["Access-Control-Allow-Headers"] = "*"	
 	return response
 
+
+@csrf_exempt 
+def updateUser (request, user_id):
+	if request.method == 'POST':
+		access_token = request.POST["access_token"]
+		current_user = User.objects.get(pk=user_id)
+	
+		names = []
+		genders = []
+		friends = []
+		for friend_info in get_friends(access_token):
+			friends.append(friend_info["uid"])
+			names.append(friend_info["name"])
+			genders.append(friend_info["sex"])
+		obj.names = names
+		obj.friends = friends
+		obj.genders = genders			
+		obj.topFriends = get_top_friends(access_token)
+		obj.save()
+
+		response = HttpResponse("[{}]", mimetype = 'application/json')
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+                return response
+	return HttpResponse()
+
 @csrf_exempt 
 def createUser(request):
 	if request.method == 'POST':
+		access_token = request.POST["access_token"]
+		profile = get_profile(access_token)
+		facebook_id = profile["id"]
+			
+		obj, created = User.objects.get_or_create(facebookID=int(facebook_id))
+		obj.profile = profile
+		obj.save()
 		
-		obj, created = User.objects.get_or_create(facebookID=int(request.POST['id_facebookID']))
-		obj.facebookID = int(request.POST['id_facebookID'])
-		#obj.socialIdentity =  request.POST['id_socialIdentity']
-		obj.profile =  request.POST['id_profile']
+		names = []
+		genders = []
+		friends = []
+		for friend_info in get_friends(oauth):
+			friends.append(friend_info["uid"])
+			names.append(friend_info["name"])
+			genders.append(friend_info["sex"])
+					
 		obj.friends =  request.POST['id_friends']
 		obj.genders = request.POST['id_genders']
 		obj.names = request.POST['id_names']
-		try:
-			if request.POST['id_mutual_friend_count']:
-				obj.mutual_friend_count = request.POST['id_mutual_friend_count']
-		except:
-				obj.mutual_friend_count = []
 		obj.save()
-		try:
-			access_token = request.POST["access_token"]
-			obj.topFriends = get_top_friends(access_token)
-			obj.save()
-		except:
-			return HttpResponse("Could not process top friends")
-			
+
+		obj.topFriends = get_top_friends(access_token)
+		obj.save()
+
 		response = HttpResponse("[{}]", mimetype = 'application/json')
                 response["Access-Control-Allow-Origin"] = "*"
                 response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"

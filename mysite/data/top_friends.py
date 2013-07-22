@@ -41,7 +41,7 @@ def get_top_friends(oauth):
 			friend_scores[like["user_id"]] = 1
 	
 	sorted_friends  = sorted(friend_scores.iteritems(), key=lambda (k,v): (v,k), reverse = True)
-	print sorted_friends
+	return sorted_friends
 	#user_id = "551733910"
 	#full_url = url + "/" + user_id + "/"
 	#r = requests.post(full_url, data={"data": json.dumps(sorted_friends)})
@@ -54,10 +54,10 @@ def get_top_friends(oauth):
 def get_friends(oauth):
 	graph = facebook.GraphAPI(oauth)
 	data = graph.fql("SELECT uid, name, sex FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) ORDER BY mutual_friend_count DESC")
-	print data
+	return data
 
 def get_profile(oauth):
 	graph = facebook.GraphAPI(oauth)
 	profile = graph.get_object("me")
-	print profile
+	return profile
 
