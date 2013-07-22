@@ -1208,9 +1208,9 @@ def createUser(request):
 			names.append(friend_info["name"])
 			genders.append(friend_info["sex"])
 					
-		obj.friends =  request.POST['id_friends']
-		obj.genders = request.POST['id_genders']
-		obj.names = request.POST['id_names']
+		obj.friends =  friends
+		obj.genders = genders
+		obj.names = names
 		obj.save()
 
 		obj.topFriends = get_top_friends(access_token)
