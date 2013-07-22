@@ -850,7 +850,7 @@ def changeAnswer(request):
 			question.save()
 
 			# delete the old answer
-			UserGeneratedAnswer.objects.filter(fromUser = from_user).filter(forUser=User.objects.get(pk=forFacebookId))..filter(question=question).filter(chosenUGProduct = wrong_product, wrongUGProduct=chosen_product).delete()
+			UserGeneratedAnswer.objects.filter(fromUser = from_user).filter(forUser=User.objects.get(pk=forFacebookId)).filter(question=question).filter(chosenUGProduct = wrong_product, wrongUGProduct=chosen_product).delete()
 			
 			# create the new answer
 			obj = UserGeneratedAnswer.objects.create(
@@ -992,7 +992,7 @@ def newAnswer(request):
 				chosenProduct = TrainingProduct.objects.get(pk=chosen_product_id),
 				question = TrainingQuestion.objects.get(pk=question_id)			
 			)
-			notif_utils.updateStatusScore(user, "training")
+			notif_utils.updateStatusScore(from_user, "training")
 		else:
 			if is_user:
 				notif_utils.updateNotification(forFacebookId, ("number_answers", 1))
