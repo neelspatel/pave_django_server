@@ -84,9 +84,11 @@ def getRecList(request, user_id):
 def getNewRec(request, user_id):
 	new_rec_iterator = Recommendation.objects.filter(user=user_id).filter(delivered=False)
 	if (not new_rec_iterator):
+		# get something from feel good rec
 		return HttpResponse(json.dumps({"error": "no insight available"}), mimetype="application/json")
 	new_rec = new_rec_iterator[0]
 	new_rec.delivered = True
 	new_rec.save()
+	return HttpResponse(json.dumps({"url": "www.google.com", "text": "THIS IS ONE FOR GOOGLE"}), mimetype="application/json")
 	return HttpResponse(json.dumps({"url": new_rec.rec.url, "text": new_rec.rec.text}), mimetype="application/json")
 
