@@ -55,7 +55,6 @@ def createUGQuestion(request, user_id):
 		p2_filename = user_id + "_2_%s.jpg" % datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 			
 		r = requests.post(url, data = {"product1_filename": p1_filename, "product2_filename": p2_filename, "product2_url": p2_url, "product1_url": p1_url})
-		
 		# create the new products
   
 		product1 = UserGeneratedProduct.objects.create(fileURL = p1_filename, on = True, user = current_user, description = request.POST["product1_description"])				
@@ -88,7 +87,10 @@ def getUGQuestionsList(request, user_id):
 	questions = UserGeneratedQuestion.objects.filter(user=current_user)
 	data= []
 	for q in questions:
-		data.append({
+		product1_filename = "https://s3.amazonaws.com/ug_product_images/" + q.product1.fileURL
+		product2_filename = "https://s3.amazonaws.com/ug_product_images/" + q.product2.fileURL
+
+	data.append({
 				"question_text": q.text,
 				"fbFriend1": q.fbFriend1,
 				"fbFriend2": q.fbFriend2,
@@ -96,8 +98,8 @@ def getUGQuestionsList(request, user_id):
 				"product_2": q.product2.id,
 				"product_1_count": q.product1_count,
 				"product_2_count": q.product2_count,
-				"product_1_url": q.product1.fileURL,
-				"product_2_url": q.product2.fileURL,
+				"product_1_url": product1_filename,
+				"product_2_url": product2_filename,
 				"question_id": q.id
 			})
 	data.reverse()	
