@@ -58,9 +58,9 @@ def createUGQuestion(request, user_id):
 		
 		# create the new products
   
-		product1 = UserGeneratedProduct.objects.create(fileURL = p1_url, on = True, user = current_user, description = request.POST["product1_description"])				
+		product1 = UserGeneratedProduct.objects.create(fileURL = p1_filename, on = True, user = current_user, description = request.POST["product1_description"])				
 	
-		product2 = UserGeneratedProduct.objects.create(fileURL = p2_url, on = True, user = current_user, description = request.POST["product2_description"])				
+		product2 = UserGeneratedProduct.objects.create(fileURL = p2_filename, on = True, user = current_user, description = request.POST["product2_description"])				
 		ug_question = UserGeneratedQuestion.objects.create(user = current_user, text = request.POST["question_text"], product1 = product1, product2 = product2, on = True)
 	 	
 		for friend_id in current_user.friendsInApp:
