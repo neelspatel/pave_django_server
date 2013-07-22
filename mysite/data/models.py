@@ -88,7 +88,7 @@ class Recommendation(models.Model):
 	user = models.ForeignKey(User)
 	rec = models.ForeignKey(ToRecommend)
 	delivered = models.BooleanField(default=False)	
-
+	agree = models.NullBooleanField(null=True)
 
 # Create your models here
 class ProductType(models.Model):

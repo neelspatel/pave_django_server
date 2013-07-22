@@ -92,3 +92,15 @@ def getNewRec(request, user_id):
 	return HttpResponse(json.dumps({"url": "www.google.com", "text": "THIS IS ONE FOR GOOGLE"}), mimetype="application/json")
 	return HttpResponse(json.dumps({"url": new_rec.rec.url, "text": new_rec.rec.text}), mimetype="application/json")
 
+@csrf_exempt
+def agreeWithRec(request, user_id):
+	if request.method == 'POST':
+		rec = Recommendation.objects.get(pk = request.POST["rec_id"])
+		if "agree" in json.dumps(requst.POST):
+			rec.agree = True
+		else:
+			rec.agree = False
+		rec.save()
+		return HttpResponse(json.dumps({"response": "ok"}), mimetype='application/josn')
+	else:
+		return HttpResponse("Not a POST")
