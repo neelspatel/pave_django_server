@@ -50,6 +50,9 @@ urlpatterns = patterns('',
 	url(r'^newgetlistquestions/(?P<user_id>\w+)/$', views.newGetListQuestions, name = "newgetlistquestions"),	
 	url(r'^groupgetlistquestions/(?P<user_id>\w+)/$', group_views.getGroupListQuestions, name = "getgrouplistquestions"),
 	url(r'^traininggetlistquestions/(?P<user_id>\w+)/$', training_views.getTrainingListQuestions, name = "getlistquestiontraining"),
+
+	# change answers
+	url(r'^changeanswer/(?P<user_id>\w+)/$', views.changeAnswer, name = "changeanswer"),	
 	
 	# get questions to train the stupid shit
 	url(r'^recsgetlistquestions/(?P<user_id>\w+)/$', training_views.getRecsListQuestions, name = "getlistquestionrecs"),
