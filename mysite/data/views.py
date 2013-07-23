@@ -65,9 +65,12 @@ def uploadImage(request):
 
 
 @csrf_exempt
-def imagesearch(request, query):
+def imagesearch(request):
         OAUTH_CONSUMER_KEY = "dj0yJmk9N2ZZbHpHMXRqNjdEJmQ9WVdrOVMxazNaelZuTmpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD05Zg--"
         OAUTH_CONSUMER_SECRET = "3fa34549164ea42f2c3afa510156a2311262f4e0"
+
+	query = request.POST["query"]
+	query = urllib.quote(query)
 
         url = "http://yboss.yahooapis.com/ysearch/images?q="+query
         consumer = oauth2.Consumer(key=OAUTH_CONSUMER_KEY,secret=OAUTH_CONSUMER_SECRET)
