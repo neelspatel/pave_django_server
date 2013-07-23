@@ -76,6 +76,8 @@ class Notification(models.Model):
 	last_rec_update = models.DateTimeField(null=True)
 	rec_ready = models.BooleanField(default=False)
 	#scale = models.FloatField(default = 1.0)
+	def __unicode__(self):
+		return str(user) + ": " + str(status_score)
 
 class ToRecommend(models.Model):
 	url = models.CharField(max_length=200)
