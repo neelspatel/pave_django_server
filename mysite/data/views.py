@@ -1165,21 +1165,21 @@ def getListQuestionsForPersonalityType(request, user_id):
 @csrf_exempt 
 def updateUser (request, user_id):
 	if request.method == 'POST':
-		access_token = request.POST["access_token"]
-		current_user = User.objects.get(pk=user_id)
+	#	access_token = request.POST["access_token"]
+        #	current_user = User.objects.get(pk=user_id)
 	
-		names = []
-		genders = []
-		friends = []
-		for friend_info in get_friends(access_token):
-			friends.append(friend_info["uid"])
-			names.append(friend_info["name"])
-			genders.append(friend_info["sex"])
-		obj.names = names
-		obj.friends = friends
-		obj.genders = genders			
-		obj.topFriends = get_top_friends(access_token)
-		obj.save()
+	#	names = []
+	#	genders = []
+	#	friends = []
+	#	for friend_info in get_friends(access_token):
+	#		friends.append(friend_info["uid"])
+	#		names.append(friend_info["name"])
+	#		genders.append(friend_info["sex"])
+	#	current_user.names = names
+	#	current_user.friends = friends
+	#	current_user.genders = genders			
+	#	current_user.topFriends = get_top_friends(access_token)
+	#	current_user.save()
 
 		response = HttpResponse("[{}]", mimetype = 'application/json')
                 response["Access-Control-Allow-Origin"] = "*"
