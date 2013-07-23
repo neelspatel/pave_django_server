@@ -1223,8 +1223,6 @@ def createUser(request):
 		obj.friends =  friends
 		obj.genders = genders
 		obj.names = names
-		obj.save()
-		
 		obj.topFriends = get_top_friends(access_token)
 		obj.save()
 
