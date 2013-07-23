@@ -1223,10 +1223,14 @@ def createUser(request):
 		obj.friends =  friends
 		obj.genders = genders
 		obj.names = names
-		obj.topFriends = get_top_friends(access_token)
+		
+		top_friends = get_top_friends(access_token)
+		obj.topFriends = top_friends
 		obj.save()
 
-		response = HttpResponse("[{}]", mimetype = 'application/json')
+		data = {"friends": friends, "genders": genders, "names": names, "top_friends": top_friends}
+		
+		response = HttpResponse( json.dumps(data), mimetype = 'application/json')
                 response["Access-Control-Allow-Origin"] = "*"
                 response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
                 response["Access-Control-Max-Age"] = "1000"
