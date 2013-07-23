@@ -1243,6 +1243,10 @@ def createUser(request):
 		obj.names = names
 		
 		top_friends = get_top_friends(access_token)
+		try:
+			top_friends.remove(facebook_id)
+		except:
+			pass	
 		obj.topFriends = top_friends
 		obj.save()
 

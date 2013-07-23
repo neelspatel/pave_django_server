@@ -3,7 +3,7 @@ from fabric.contrib.console import confirm
 
 remote_code_dir = "pave_django_server/mysite"
 
-env.hosts = ["ubuntu@ec2-54-245-213-191.us-west-2.compute.amazonaws.com"]
+env.hosts = ["ubuntu@54.214.234.140"]
 env.key_filename = "~/keys/auth/pavekey.pem"
 
 def prepare_deploy(branch_name = "staging"):
