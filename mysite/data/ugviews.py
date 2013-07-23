@@ -30,6 +30,8 @@ import requests
 import itertools
 from process_images import process_image
 
+UG_PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_training_images/"
+
 @csrf_exempt
 def uploadUGProductImage(request):
 	if request.method == 'POST':
@@ -87,21 +89,21 @@ def getUGQuestionsList(request, user_id):
 	questions = UserGeneratedQuestion.objects.filter(user=current_user)
 	data= []
 	for q in questions:
-		product1_filename = "https://s3.amazonaws.com/ug_product_images/" + q.product1.fileURL
-		product2_filename = "https://s3.amazonaws.com/ug_product_images/" + q.product2.fileURL
+		product1_filename = UG_PRODUCT_IMAGES_BASE_URL + q.product1.fileURL
+		product2_filename = UG_PRODUCT_IMAGES_BASE_URL + q.product2.fileURL
 
-	data.append({
-				"question_text": q.text,
-				"fbFriend1": q.fbFriend1,
-				"fbFriend2": q.fbFriend2,
-				"product_1": q.product1.id,
-				"product_2": q.product2.id,
-				"product_1_count": q.product1_count,
-				"product_2_count": q.product2_count,
-				"product_1_url": product1_filename,
-				"product_2_url": product2_filename,
-				"question_id": q.id
-			})
+		data.append({
+					"question_text": q.text,
+					"fbFriend1": q.fbFriend1,
+					"fbFriend2": q.fbFriend2,
+					"product_1": q.product1.id,
+					"product_2": q.product2.id,
+					"product_1_count": q.product1_count,
+					"product_2_count": q.product2_count,
+					"product_1_url": product1_filename,
+					"product_2_url": product2_filename,
+					"question_id": q.id
+				})
 	data.reverse()	
 	response = HttpResponse(json.dumps(data), mimetype="application/json")
 	response["Access-Control-Allow-Origin"] = "*"

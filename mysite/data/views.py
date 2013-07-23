@@ -43,6 +43,10 @@ from top_friends import get_top_friends, get_friends, get_profile
 import cPickle as pickle
 import data.notif_views as notif_utils
 
+UG_IMAGES_BASE_URL = "https://s3.amazonaws.com/ug_product_images/"
+TRAINING_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_training_images/"
+PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_product_images/"
+
 #for uploading a single file to s3 from a client somewhere
 @csrf_exempt
 def uploadImage(request):
@@ -378,9 +382,11 @@ def getFriendWithValidNameTopFriends(current_user, gender = None):
 		current_friend = str(current_user.friends[index])
 		name = current_user.names[index]
 		#checks if it is a valid name (in a very hackish way)
-		if name != name.decode('utf8'):
+		try:
+			if (name != name.decode('utf8')):
+				name = ""
+		except:
 			name = ""
-
 	return {"name": name, "facebook_id": current_friend}
 
 
@@ -395,16 +401,12 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 		curr_len = Product.objects.filter(type=p_type).filter(on=True).count()
 		curr_products = Product.objects.filter(type=p_type).filter(on=True)
 		p_types_products[p_type] = random_combinations(curr_products, curr_len, (count * 2))
-
-	
 	
 		
 	if p_types_products:
 		# delete all of the questions for this user
 		if replace:
 			QuestionObject.objects.filter(toUser=current_user).delete()
-
-		
 
 		male_friends = []
 		female_friends = []
@@ -423,13 +425,13 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 			if question.type.text.endswith("_male"):
 				if (len(male_friends) == 0):
 					continue
-				current_friend = getFriendWithValidName(current_user, "male")
+				current_friend = getFriendWithValidNameTopFriends(current_user, "male")
 			elif question.type.text.endswith("_female"):
 				if(len(female_friends) == 0):
 					continue 
-				current_friend = getFriendWithValidName(current_user, "female")
+				current_friend = getFriendWithValidNameTopFriends(current_user, "female")
 			else:
-				current_friend = getFriendWithValidName(current_user)
+				current_friend = getFriendWithValidNameTopFriends(current_user)
 			p_tuple = p_types_products[question.type].pop(0)
 			product1 = p_tuple[0]
 			product2 = p_tuple[1]
@@ -462,7 +464,6 @@ def updateQuestionObjectQueue(current_user, count=100, replace=False):
 			)	
 			qq_list.append(q_q)
 		return qq_list
-
 
 #
 @csrf_exempt
@@ -502,6 +503,8 @@ def newGetListQuestions(request, user_id):
 	for q in questions:
 		# determine if q is user_generated
 		if type(q) == QuestionObject:		
+			p1_url = PRODUCT_IMAGES_BASE_URL + q.image1
+			p2_url = PRODUCT_IMAGES_BASE_URL + q.image2
 			json_q = {
 				"isUG": False,
 				"fbFriend1": [], 
@@ -512,13 +515,14 @@ def newGetListQuestions(request, user_id):
 				"name": q.aboutFriendName,
 				"product1": q.product1.id,
 				"product2": q.product2.id,
-				"image1": q.image1,
-				"image2": q.image2,
+				"image1": p1_url,
+				"image2": p2_url,
 				"friend": q.aboutFriend,
 				"questionText": q.questionText
 			}
-			# delete the q_object
 		else:
+			p1_url = UG_IMAGES_BASE_URL + q.question.product1.fileURL
+			p2_url = UG_IMAGES_BASE_URL + q.question.product2.fileURL
 			json_q = {
 				"isUG": True,
 				"fbFriend1": [],
@@ -526,11 +530,11 @@ def newGetListQuestions(request, user_id):
 				"product1Count": q.question.product1_count,
 				"product2Count": q.question.product2_count,
 				"currentQuestion": q.question.id,
-				#"name":
+				"name": json.loads(q.byUser.profile)["name"],
 				"product1": q.question.product1.id,
 				"product2": q.question.product2.id,
-				"image1": q.question.product1.fileURL,
-				"image2": q.question.product2.fileURL,
+				"image1": p1_url,
+				"image2": p2_url,
 				"friend": q.byUser.facebookID,
 				"questionText": q.question.text
 			}
@@ -726,24 +730,35 @@ def getAllFeedObjects(request, user_id):
 	all_feed_objects = FeedObject.objects.filter(forUser = user_id)
 	for current_object in all_feed_objects:
 		for friend in current_object.fbFriend1:
-			objects_to_return.append({"question":current_object.questionText, "friend":friend, "chosenProduct":current_object.product1.fileURL, "otherProduct":current_object.product2.fileURL})
+			p1_url = PRODUCT_IMAGES_BASE_URL + current_object.product1.fileURL
+			p2_url = PRODUCT_IMAGES_BASE_URL + current_object.product2.fileURL
+			objects_to_return.append(
+				{
+					"question":current_object.questionText, 
+					"friend":friend, 
+					"chosenProduct": p1_url, 
+					"otherProduct": p2_url
+				})
 		for friend in current_object.fbFriend2:
-                        objects_to_return.append({"question":current_object.questionText, "friend":friend, "chosenProduct":current_object.product2.fileURL, "otherProduct":current_object.product1.fileURL})
-#	try:
-# 		response = HttpResponse(serializers.serialize("json", FeedObject.objects.filter(forUser = user_id), fields=('id')), mimetype='application/json')
-#	response = HttpResponse(serializers.serialize("json", objects_to_return))
+			p1_url = PRODUCT_IMAGES_BASE_URL + current_object.product1.fileURL
+			p2_url = PRODUCT_IMAGES_BASE_URL + current_object.product2.fileURL
+                        objects_to_return.append(
+				{
+					"question":current_object.questionText, 
+					"friend":friend, 
+					"chosenProduct": p1_url,
+					 "otherProduct": p2_url,
+				})
+
 	
 	name = json.loads(User.objects.get(pk=user_id).profile)['name']
-
+	
 	for current_object in objects_to_return:
 		current_object['question'] = current_object['question'].replace("%n", name.split()[0])
-
-
+		
+	objects_to_return.reverse()
+	
 	response = HttpResponse(json.dumps(objects_to_return), mimetype = 'application/json')
-#		response = HttpResponse(simplejson.dumps( [{"id": o.id} for o in FeedObject.objects.filter(forUser = user_id)]), mimetype='application/json')
-#        except:
-#	        response = HttpResponse(serializers.serialize("json", []), mimetype='application/json')
-
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
         response["Access-Control-Max-Age"] = "1000"

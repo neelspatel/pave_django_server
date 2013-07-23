@@ -26,6 +26,7 @@ import itertools
 import notif_views as notif_utils
 
 PROCESSING_URL = "ec2-54-218-218-2.us-west-2.compute.amazonaws.com/data/"
+REC_BASE_URL = "https://s3.amazonaws.com/rec_product_images/"
 
 @csrf_exempt
 def updateRecVector(user_id):
@@ -71,7 +72,8 @@ def getRecList(request, user_id):
 	recs = Recommendation.objects.filter(user=current_user)
 	data = []
 	for user_rec in recs:
-		data.append({"url": user_rec.rec.url, "text": user_rec.rec.text})
+		url = REC_BASE_URL + user_rec.rec.url
+		data.append({"url": url, "text": user_rec.rec.text})
 	data.reverse()
 	response = HttpResponse(json.dumps(data), mimetype='application/json')
 	response["Access-Control-Allow-Origin"] = "*"
