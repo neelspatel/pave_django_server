@@ -32,6 +32,10 @@ from process_images import process_image
 from collections import Counter
 from data.views import random_combinations
 
+UG_IMAGES_BASE_URL = "https://s3.amazonaws.com/ug_product_images/"
+TRAINING_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_training_images/"
+PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_product_images/"
+
 # THIS IS FOR TRAINING PURPOSES
 @csrf_exempt
 def getRecsListQuestions(request, user_id):
@@ -157,13 +161,15 @@ def getTrainingListQuestions(request, user_id):
 				question_text = question.text.replace("%n", name.split()[0])
 			except:
 				question_text = question.text
+			p1_url = TRAINING_IMAGES_BASE_URL + product1.fileURL 
+			p2_url = TRAINING_IMAGES_BASE_URL + product2.fileURL
 			json_q = {
 				"currentQuestion":question.id,
 				"name": name,
 				"product1": product1.id,
 				"product2": product2.id,
-				"image1": product1.fileURL,
-				"image2": product2.fileURL,
+				"image1": p1_url,
+				"image2": p2_url,
 				"questionText": question_text
 			}
 

@@ -25,6 +25,10 @@ from collections import Counter
 from data.notif_views import updateNotification
 from data.views import updateQuestionObjectQueue
 
+UG_IMAGES_BASE_URL = "https://s3.amazonaws.com/ug_product_images/"
+TRAINING_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_training_images/"
+PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_product_images/"
+
 def getGender(questionObject):
 	text =  questionObject.currentQuestion.type.text
 	if text.endswith("_female"):
@@ -98,7 +102,8 @@ def getGroupListQuestions(request, user_id):
 
 
 
-								
+			p1_url = PRODUCT_IMAGES_BASE_URL + q.image1
+			p2_url = PRODUCT_IMAGES_BASE_URL + q.image2					
 			json_q = {
 				"fbFriend1": [], 
 				"fbFriend2": [], 
@@ -108,8 +113,8 @@ def getGroupListQuestions(request, user_id):
 				"name": names[rand_friend],
 				"product1": q.product1.id,
 				"product2": q.product2.id,
-				"image1": q.image1,
-				"image2": q.image2,
+				"image1": p1_url,
+				"image2": p2_url,
 				"friend": str(rand_friend),
 				"questionText": question_text
 			}

@@ -30,6 +30,8 @@ import requests
 import itertools
 from process_images import process_image
 
+UG_PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_training_images/"
+
 @csrf_exempt
 def uploadUGProductImage(request):
 	if request.method == 'POST':
@@ -87,8 +89,8 @@ def getUGQuestionsList(request, user_id):
 	questions = UserGeneratedQuestion.objects.filter(user=current_user)
 	data= []
 	for q in questions:
-		product1_filename = "https://s3.amazonaws.com/ug_product_images/" + q.product1.fileURL
-		product2_filename = "https://s3.amazonaws.com/ug_product_images/" + q.product2.fileURL
+		product1_filename = UG_PRODUCT_IMAGES_BASE_URL + q.product1.fileURL
+		product2_filename = UG_PRODUCT_IMAGES_BASE_URL + q.product2.fileURL
 
 		data.append({
 					"question_text": q.text,

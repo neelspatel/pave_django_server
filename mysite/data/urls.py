@@ -20,7 +20,7 @@ urlpatterns = patterns('',
 	url(r'index', views.index, name = "uploadProductImage"),
 	# User Generated Upload 
 	url(r'uploadImage', views.uploadImage, name = "uploadProductImage"),
-        url(r'^imagesearch/(?P<query>\w+)/$', views.imagesearch, name = "imagesearch"),
+        url(r'imagesearch', views.imagesearch, name = "imagesearch"),
 	url(r'uploadugproduct', ugviews.uploadUGProductImage, name = "uploadProductImage"),
 	
         url(r'^gettrainingquestions/(?P<user_id>\w+)/$', views.getListQuestionsForPersonalityType, name = "getlistquestionsnew"),
