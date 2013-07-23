@@ -90,18 +90,18 @@ def getUGQuestionsList(request, user_id):
 		product1_filename = "https://s3.amazonaws.com/ug_product_images/" + q.product1.fileURL
 		product2_filename = "https://s3.amazonaws.com/ug_product_images/" + q.product2.fileURL
 
-	data.append({
-				"question_text": q.text,
-				"fbFriend1": q.fbFriend1,
-				"fbFriend2": q.fbFriend2,
-				"product_1": q.product1.id,
-				"product_2": q.product2.id,
-				"product_1_count": q.product1_count,
-				"product_2_count": q.product2_count,
-				"product_1_url": product1_filename,
-				"product_2_url": product2_filename,
-				"question_id": q.id
-			})
+		data.append({
+					"question_text": q.text,
+					"fbFriend1": q.fbFriend1,
+					"fbFriend2": q.fbFriend2,
+					"product_1": q.product1.id,
+					"product_2": q.product2.id,
+					"product_1_count": q.product1_count,
+					"product_2_count": q.product2_count,
+					"product_1_url": product1_filename,
+					"product_2_url": product2_filename,
+					"question_id": q.id
+				})
 	data.reverse()	
 	response = HttpResponse(json.dumps(data), mimetype="application/json")
 	response["Access-Control-Allow-Origin"] = "*"
