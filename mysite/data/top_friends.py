@@ -40,7 +40,7 @@ def get_top_friends(oauth):
 		except:
 			friend_scores[like["user_id"]] = 1
 	
-	sorted_friends  = sorted(friend_scores.iteritems(), key=lambda (k,v): (v,k), reverse = True)
+	sorted_friends  = [friend for (friend, value) in sorted(friend_scores.iteritems(), key=lambda (k,v): (v,k), reverse = True)]
 	return sorted_friends
 	#user_id = "551733910"
 	#full_url = url + "/" + user_id + "/"
