@@ -844,7 +844,7 @@ def changeAnswer(request):
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
 
-		if "is_ug" in request.POST:
+		if "isUG" in request.POST:
 			# change the question count on the user generated question
 			question = UserGeneratedQuestion.objects.get(pk=question_id)
 			chosen_product = UserGeneratedProduct.objects.get(pk=chosen_product_id)
