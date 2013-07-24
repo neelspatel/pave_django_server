@@ -30,7 +30,7 @@ import requests
 import itertools
 from process_images import process_image
 
-UG_PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_training_images/"
+UG_PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/ug_product_images/"
 
 @csrf_exempt
 def uploadUGProductImage(request):
