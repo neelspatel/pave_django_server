@@ -89,8 +89,8 @@ def getUGQuestionsList(request, user_id):
 	questions = UserGeneratedQuestion.objects.filter(user=current_user)
 	data= []
 	for q in questions:
-#		product1_filename = UG_PRODUCT_IMAGES_BASE_URL + q.product1.fileURL
-#		product2_filename = UG_PRODUCT_IMAGES_BASE_URL + q.product2.fileURL
+		product1_filename = UG_PRODUCT_IMAGES_BASE_URL + q.product1.fileURL
+		product2_filename = UG_PRODUCT_IMAGES_BASE_URL + q.product2.fileURL
 
 		product1_filename = q.product1.fileURL
 		product2_filename = q.product2.fileURL
