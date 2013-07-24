@@ -73,8 +73,7 @@ def getRecList(request, user_id):
 	data = []
 	for user_rec in recs:
 #		url = REC_BASE_URL + user_rec.rec.url
-               url = user_rec.rec.url
-
+               	url = user_rec.rec.url
 		data.append({"url": url, "text": user_rec.rec.text})
 	data.reverse()
 	response = HttpResponse(json.dumps(data), mimetype='application/json')
