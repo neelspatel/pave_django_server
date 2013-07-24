@@ -1197,6 +1197,12 @@ def updateUser (request, user_id):
 		current_user.friends = friends
 		current_user.genders = genders			
 		top_friends = get_top_friends(access_token)
+
+		try:	
+			top_friends.remove(facebook_id)
+		except:
+			pass	
+
 		current_user.topFriends = top_friends
 		current_user.save()
 		
