@@ -1196,7 +1196,8 @@ def updateUser (request, user_id):
 		current_user.names = names
 		current_user.friends = friends
 		current_user.genders = genders			
-		current_user.topFriends = get_top_friends(access_token)
+		top_friends = get_top_friends(access_token)
+		current_user.topFriends = top_friends
 		current_user.save()
 		
 		data = {"friends": friends, "genders": genders, "names": names, "top_friends": top_friends}
