@@ -744,8 +744,11 @@ def getAllFeedObjects(request, user_id):
 			objects_to_return.append(
 				{
 					"question":current_object.questionText, 
+					"questionID":current_object.currentQuestion.id,
 					"friend":friend, 
 					"chosenProduct": p1_url, 
+					"chosenProductID": current_object.product1.id,
+					"otherProductID": current_object.product2.id,
 					"otherProduct": p2_url
 				})
 		for friend in current_object.fbFriend2:
@@ -754,9 +757,13 @@ def getAllFeedObjects(request, user_id):
                         objects_to_return.append(
 				{
 					"question":current_object.questionText, 
+					"questionID":current_object.currentQuestion.id,
 					"friend":friend, 
 					"chosenProduct": p1_url,
-					 "otherProduct": p2_url,
+					"chosenProductID": current_object.product1.id,
+                                        "otherProductID": current_object.product2.id,
+					"otherProduct": p2_url,
+
 				})
 
 	
@@ -849,6 +856,7 @@ def changeAnswer(request):
 		chosen_product_id = request.POST["id_chosenProduct"]
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
+		user_id = request.POST["id_facebookID"]
 
 		if "isUG" in request.POST:
 			# change the question count on the user generated question
@@ -904,11 +912,11 @@ def changeAnswer(request):
 			
 			chosen_product = Product.objects.get(pk=chosen_product_id)
 			wrong_product = Product.objects.get(pk=wrong_product_id)
-			question = Question.objects.get(pk=user_id)
+			question = Question.objects.get(pk=question_id)
 
 			feed_object = FeedObject.objects.filter(currentQuestion=question).filter(forUser=forFacebookId)[0]
 			if (feed_object.product1 == chosen_product):
-				feed_object.product2_count -= 1
+				feed_object.product2Count -= 1
 				try:
 					feed_object.fbFriend2.pop(user_id)
 				except:
@@ -916,7 +924,7 @@ def changeAnswer(request):
 				feed_object.fbFriend1.append(user_id)
 
 			else:
-				feed_object.product1_count -= 1
+				feed_object.product1Count -= 1
 				try:
 					feed_object.fbFriend1.pop(user_id)
 				except:
@@ -965,7 +973,7 @@ def agreeWithAnswer(request, user_id):
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
 
-		notif_utils.updateScore(from_user, "answer_recieved")
+		notif_utils.updateStatusScore(from_user, "answer_recieved")
 	
 		obj = Answer.objects.create(
 			fromUser = from_user,

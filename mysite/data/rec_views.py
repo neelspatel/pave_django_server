@@ -99,7 +99,7 @@ def getNewRec(request, user_id):
 def agreeWithRec(request, user_id):
 	if request.method == 'POST':
 		rec = Recommendation.objects.get(pk = request.POST["rec_id"])
-		if "agree" in json.dumps(requst.POST):
+		if "agree" in json.dumps(request.POST):
 			rec.agree = True
 		else:
 			rec.agree = False
