@@ -46,6 +46,12 @@ import data.notif_views as notif_utils
 UG_IMAGES_BASE_URL = "https://s3.amazonaws.com/ug_product_images/"
 TRAINING_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_training_images/"
 PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_product_images/"
+APP_STORE_URL = "https://itunes.apple.com/us/app/side"
+
+@csrf_exempt
+def getAppStoreUrl(request):
+	data = {"url": APP_STORE_URL}
+	return HttpResponse(json.dumps(data), mimetype="application/json")
 
 #for uploading a single file to s3 from a client somewhere
 @csrf_exempt

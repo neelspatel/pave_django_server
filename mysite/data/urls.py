@@ -4,6 +4,10 @@ from data import views, ugviews, notif_views, group_views, training_views, rec_v
 urlpatterns = patterns('',
 	# Get Notifications
 	url(r'^getnotification/(?P<user_id>\w+)/$', notif_views.getNotifications, name = "getnotifications"),
+	# Request the APP STORE url
+	url(r'^getappstoreurl/$', views.getAppStoreUrl, name = "getappstoreurl"),
+
+	url(r'^getnotification/(?P<user_id>\w+)/$', notif_views.getNotifications, name = "getnotifications"),
 
 	# Get new Recommendation
 	url(r'^getnewrec/(?P<user_id>\w+)/$', rec_views.getNewRec, name = "getnewrec"),
