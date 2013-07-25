@@ -182,19 +182,6 @@ class Answer(models.Model):
 	def save(self, *args, **kwargs):
 		#first check if it is about themselves; if so, we don't need to change any feed object
 		if(int(self.fromUser.pk) == int(self.forFacebookId)):
-			trending_object = TrendingObject.objects.filter(Q(product1_id = self.chosenProduct) | Q(product1_id = self.wrongProduct))
-			trending_object = trending_object.filter(Q(product2_id = self.chosenProduct) | Q(product2_id = self.wrongProduct))
-			trending_object = trending_object.filter(question = self.question)
-			final_object = trending_object[0]
-			
-			#now figure out which count to update
-			if(final_object.product1_id == self.chosenProduct):
-				final_object.product1_count += 1
-			else:
-				final_object.product2_count += 1
-
-			#now save the answer
-			final_object.save() 
 			super(Answer, self).save(*args, **kwargs)
 		else:
 			results = FeedObject.objects.filter(Q(product1 = self.chosenProduct) | Q(product1 = self.wrongProduct))

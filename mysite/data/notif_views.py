@@ -10,6 +10,7 @@ from django.db.models import F
 from django.core import serializers
 from data.models import Notification, User
 import data.rec_views as rec_utils
+from random import choice
 
 # CHANGE THIS SHIT TO NOTHING
 @csrf_exempt
@@ -20,9 +21,10 @@ def getNotifications(request, user_id):
 		notification = Notification.objects.get(user=current_user)
 		data = {"status_score": notification.status_score, "answers": notification.number_answers, "ug_answers": notification.number_ug_answers, "recs": notification.number_recs}
 	except Notification.DoesNotExist:
-		data = {"status_score": 0, "answers": 1, "ug_answers": 1, "recs": 1}
+		data = {"status_score": 0, "answers": 0, "ug_answers": 0, "recs": 0}
 		notif_exists = False
-	#data = {"answers": 4, "ug_answers": 5, "recs": 12}	
+	#status_scores = [20, 50, 70, 90, 100, 110, 120, 140]
+	#data = {"answers": 4, "ug_answers": 5, "recs": 12, "status_score": choice(status_scores)}	
 	
 	# reset notification
 	if notif_exists:

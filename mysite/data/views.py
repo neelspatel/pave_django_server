@@ -1240,11 +1240,10 @@ def createUser(request):
 					"pictureURL": pic_url, 
 					"name": profile["name"],
 					"gender": profile["gender"],
-					"location": {"name": profile["location"]["name"]},
 					"birthday": profile["birthday"],
-					"relationship": profile["relationship_status"],
-					"facebookId": profile["id"]
-				}
+					"facebookId": profile["id"],
+					"email": profile["email"]	
+			}
 		
 		obj.profile = json.dumps(user_profile)
 		obj.save()
