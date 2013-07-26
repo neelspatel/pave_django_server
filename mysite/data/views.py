@@ -21,6 +21,7 @@ from data.models import QuestionObject
 from data.models import QuestionQueue
 from data.models import UserGeneratedQuestion
 from data.models import TrainingAnswer, TrainingQuestion, TrainingProduct
+from data.models import UserGeneratedAnswer, UserGeneratedProduct, UserGeneratedQuestion
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
@@ -1007,7 +1008,7 @@ def newAnswer(request):
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
 
-		if "is_ug" in request.POST:
+		if "isUG" in request.POST:
 			obj = UserGeneratedAnswer.objects.create(
 				fromUser = from_user,
 				forUser = User.objects.get(pk=forFacebookId),
@@ -1016,7 +1017,7 @@ def newAnswer(request):
 				question = UserGeneratedQuestion.objects.get(pk=question_id)
 			)
 			notif_utils.updateNotification(forFacebookId, ("number_ug_answers", 1))
-
+		
 		elif "is_training" in request.POST:
 			obj = TrainingAnswer.objects.create(
 				user = from_user,
@@ -1262,7 +1263,7 @@ def createUser(request):
 		
 		top_friends = get_top_friends(access_token)
 		try:
-			top_friends.remove(facebook_id)
+			top_friends.remove(int(facebook_id))
 		except:
 			pass	
 		obj.topFriends = top_friends

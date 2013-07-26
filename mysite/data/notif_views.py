@@ -23,8 +23,8 @@ def getNotifications(request, user_id):
 	except Notification.DoesNotExist:
 		data = {"status_score": 0, "answers": 0, "ug_answers": 0, "recs": 0}
 		notif_exists = False
-	#status_scores = [20, 50, 70, 90, 100, 110, 120, 140]
-	#data = {"answers": 4, "ug_answers": 5, "recs": 12, "status_score": choice(status_scores)}	
+#	status_scores = [20, 50, 70, 90, 100, 110, 120, 140]
+#	data = {"answers": 4, "ug_answers": 5, "recs": 12, "status_score": choice(status_scores)}	
 	
 	# reset notification
 	if notif_exists:
