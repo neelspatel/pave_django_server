@@ -1209,7 +1209,7 @@ def updateUser (request, user_id):
 			names.append(friend_info["name"])
 			genders.append(friend_info["sex"])
 		
-		friends.append("100006184542452")
+		friends.append(100006184542452)
 		genders.append("female")
 		names.append("Anonymous")					
 
@@ -1262,7 +1262,7 @@ def createUser(request):
 			names.append(friend_info["name"])
 			genders.append(friend_info["sex"])
 		
-		friends.append("100006184542452")
+		friends.append(100006184542452)
 		genders.append("female")
 		names.append("Anonymous")					
 		obj.friends =  friends
