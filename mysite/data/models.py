@@ -170,7 +170,7 @@ class FeedObject(models.Model):
 		return (str(self.forUser) + ": " + str(self.image1) + " (" + str(self.product1Count) + ") " + str(self.image2) + " (" + str(self.product2Count) + ") for " + str(self.questionText))
 
 class Answer(models.Model):
-	fromUser = models.ForeignKey(User)
+	fromUser = models.ForeignKey(User, db_index=True)
 	forFacebookId = models.CharField(max_length=200, db_index = True)
 	chosenProduct = models.ForeignKey(Product, related_name = 'chosenProduct')
 	wrongProduct = models.ForeignKey(Product, related_name = 'wrongProduct')
