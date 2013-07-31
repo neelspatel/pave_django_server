@@ -74,7 +74,7 @@ def getRecList(request, user_id):
 	for user_rec in recs:
 #		url = REC_BASE_URL + user_rec.rec.url
                	url = user_rec.rec.url
-		data.append({"id": user_rec.id, "url": url, "text": user_rec.rec.text})
+		data.append({"level": 1, "id": user_rec.id, "url": url, "text": user_rec.rec.text})
 	data.reverse()
 	response = HttpResponse(json.dumps(data), mimetype='application/json')
 	response["Access-Control-Allow-Origin"] = "*"
@@ -85,6 +85,7 @@ def getRecList(request, user_id):
 
 @csrf_exempt
 def getNewRec(request, user_id):
+#	return HttpResponse(json.dumps({"url": "https://s3.amazonaws.com/pave_training_images/Emma-Watson.jpg", "text": "TEST REC"}), mimetype="application/json")
 	new_rec_iterator = Recommendation.objects.filter(user=user_id).filter(delivered=False)
 	if (not new_rec_iterator):
 		# get something from feel good rec
@@ -99,7 +100,7 @@ def getNewRec(request, user_id):
 def agreeWithRec(request, user_id):
 	if request.method == 'POST':
 		rec = Recommendation.objects.get(pk = request.POST["rec_id"])
-		if "agree" in json.dumps(requst.POST):
+		if "agree" in json.dumps(request.POST):
 			rec.agree = True
 		else:
 			rec.agree = False

@@ -21,6 +21,7 @@ from data.models import QuestionObject
 from data.models import QuestionQueue
 from data.models import UserGeneratedQuestion
 from data.models import TrainingAnswer, TrainingQuestion, TrainingProduct
+from data.models import UserGeneratedAnswer, UserGeneratedProduct, UserGeneratedQuestion
 from django.forms.models import model_to_dict
 from random import randint
 from random import choice
@@ -744,8 +745,11 @@ def getAllFeedObjects(request, user_id):
 			objects_to_return.append(
 				{
 					"question":current_object.questionText, 
+					"questionID":current_object.currentQuestion.id,
 					"friend":friend, 
 					"chosenProduct": p1_url, 
+					"chosenProductID": current_object.product1.id,
+					"otherProductID": current_object.product2.id,
 					"otherProduct": p2_url
 				})
 		for friend in current_object.fbFriend2:
@@ -754,9 +758,13 @@ def getAllFeedObjects(request, user_id):
                         objects_to_return.append(
 				{
 					"question":current_object.questionText, 
+					"questionID":current_object.currentQuestion.id,
 					"friend":friend, 
 					"chosenProduct": p1_url,
-					 "otherProduct": p2_url,
+					"chosenProductID": current_object.product1.id,
+                                        "otherProductID": current_object.product2.id,
+					"otherProduct": p2_url,
+
 				})
 
 	
@@ -849,6 +857,7 @@ def changeAnswer(request):
 		chosen_product_id = request.POST["id_chosenProduct"]
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
+		user_id = request.POST["id_facebookID"]
 
 		if "isUG" in request.POST:
 			# change the question count on the user generated question
@@ -904,11 +913,11 @@ def changeAnswer(request):
 			
 			chosen_product = Product.objects.get(pk=chosen_product_id)
 			wrong_product = Product.objects.get(pk=wrong_product_id)
-			question = Question.objects.get(pk=user_id)
+			question = Question.objects.get(pk=question_id)
 
 			feed_object = FeedObject.objects.filter(currentQuestion=question).filter(forUser=forFacebookId)[0]
 			if (feed_object.product1 == chosen_product):
-				feed_object.product2_count -= 1
+				feed_object.product2Count -= 1
 				try:
 					feed_object.fbFriend2.pop(user_id)
 				except:
@@ -916,7 +925,7 @@ def changeAnswer(request):
 				feed_object.fbFriend1.append(user_id)
 
 			else:
-				feed_object.product1_count -= 1
+				feed_object.product1Count -= 1
 				try:
 					feed_object.fbFriend1.pop(user_id)
 				except:
@@ -965,7 +974,7 @@ def agreeWithAnswer(request, user_id):
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
 
-		notif_utils.updateScore(from_user, "answer_recieved")
+		notif_utils.updateStatusScore(from_user, "answer_recieved")
 	
 		obj = Answer.objects.create(
 			fromUser = from_user,
@@ -999,7 +1008,7 @@ def newAnswer(request):
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
 
-		if "is_ug" in request.POST:
+		if "isUG" in request.POST:
 			obj = UserGeneratedAnswer.objects.create(
 				fromUser = from_user,
 				forUser = User.objects.get(pk=forFacebookId),
@@ -1008,7 +1017,7 @@ def newAnswer(request):
 				question = UserGeneratedQuestion.objects.get(pk=question_id)
 			)
 			notif_utils.updateNotification(forFacebookId, ("number_ug_answers", 1))
-
+		
 		elif "is_training" in request.POST:
 			obj = TrainingAnswer.objects.create(
 				user = from_user,
@@ -1199,16 +1208,17 @@ def updateUser (request, user_id):
 			friends.append(friend_info["uid"])
 			names.append(friend_info["name"])
 			genders.append(friend_info["sex"])
+		
+		friends.append(100006184542452)
+		genders.append("female")
+		names.append("Anonymous")					
+
 		current_user.names = names
 		current_user.friends = friends
 		current_user.genders = genders			
 		top_friends = get_top_friends(access_token)
-
-		try:	
-			top_friends.remove(int(facebook_id))
-		except:
-			pass	
-
+		
+		top_friends.remove(int(user_id))
 		current_user.topFriends = top_friends
 		current_user.save()
 		
@@ -1236,11 +1246,10 @@ def createUser(request):
 					"pictureURL": pic_url, 
 					"name": profile["name"],
 					"gender": profile["gender"],
-					"location": {"name": profile["location"]["name"]},
 					"birthday": profile["birthday"],
-					"relationship": profile["relationship_status"],
-					"facebookId": profile["id"]
-				}
+					"facebookId": profile["id"],
+					"email": profile["email"]	
+			}
 		
 		obj.profile = json.dumps(user_profile)
 		obj.save()
@@ -1252,14 +1261,17 @@ def createUser(request):
 			friends.append(friend_info["uid"])
 			names.append(friend_info["name"])
 			genders.append(friend_info["sex"])
-					
+		
+		friends.append(100006184542452)
+		genders.append("female")
+		names.append("Anonymous")					
 		obj.friends =  friends
 		obj.genders = genders
 		obj.names = names
 		
 		top_friends = get_top_friends(access_token)
 		try:
-			top_friends.remove(facebook_id)
+			top_friends.remove(int(facebook_id))
 		except:
 			pass	
 		obj.topFriends = top_friends
