@@ -48,6 +48,7 @@ UG_IMAGES_BASE_URL = "https://s3.amazonaws.com/ug_product_images/"
 TRAINING_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_training_images/"
 PRODUCT_IMAGES_BASE_URL = "https://s3.amazonaws.com/pave_product_images/"
 APP_STORE_URL = "https://itunes.apple.com/us/app/side"
+ANALYSIS_SERVER_URL = "http://ec2-54-218-218-2.us-west-2.compute.amazonaws.com/data/"
 
 @csrf_exempt
 def getAppStoreUrl(request):
@@ -717,6 +718,7 @@ def getFeedObject(request, feed_object_id):
 	response["Access-Control-Allow-Headers"] = "*" 
 	return response
 
+# DEPRECATED LOL
 @csrf_exempt
 def getInsight(request, user_id):
 	try:
@@ -729,7 +731,6 @@ def getInsight(request, user_id):
         response["Access-Control-Max-Age"] = "1000"
         response["Access-Control-Allow-Headers"] = "*"
 	# - have score for each product type for the user 
-
 
 
 @csrf_exempt
@@ -1278,13 +1279,19 @@ def createUser(request):
 		obj.save()
 
 		data = {"friends": friends, "genders": genders, "names": names, "top_friends": top_friends}
-		
+
+		url = ANALYSIS_SERVER_URL + "adduser/"
+		post_data = {"user_id": facebook_id, "gender": profile["gender"], "age": profile["birthday"]}
+		# send data over to analysis server to process
+		r = requests.post(url, data=post_data)
+	
 		response = HttpResponse( json.dumps(data), mimetype = 'application/json')
                 response["Access-Control-Allow-Origin"] = "*"
                 response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
                 response["Access-Control-Max-Age"] = "1000"
                 response["Access-Control-Allow-Headers"] = "*"
-                return response
+		return response
+		
 	return HttpResponse()
 
 @csrf_exempt
