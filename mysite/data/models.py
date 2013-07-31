@@ -67,7 +67,7 @@ class User(models.Model):
 
 
 class Notification(models.Model):
-	user = models.ForeignKey(User)
+	user = models.ForeignKey(User, unique = True)
 	number_answers = models.IntegerField(default=0)
 	number_ug_answers = models.IntegerField(default=0)
 	number_recs = models.IntegerField(default=0)
@@ -82,19 +82,18 @@ class Notification(models.Model):
 class ToRecommend(models.Model):
 	url = models.CharField(max_length=200)
 	text = models.CharField(max_length=200)
-
 	def __unciode__(self):
 		return self.url
 
 class Recommendation(models.Model):
-	user = models.ForeignKey(User)
-	rec = models.ForeignKey(ToRecommend)
+	user = models.ForeignKey(User, db_index = True)
+	rec = models.ForeignKey(ToRecommend, db_index = True)
 	delivered = models.BooleanField(default=False)	
 	agree = models.NullBooleanField(null=True)
 
 # Create your models here
 class ProductType(models.Model):
-	text = models.CharField(max_length=200)
+	text = models.CharField(max_length=200, unique = True)
 	count = models.IntegerField()
         def __unicode__(self):
                 return self.text
@@ -110,7 +109,7 @@ class Product(models.Model):
         type = models.ForeignKey(ProductType)
 	on = models.BooleanField(default=True)
         description = models.TextField()
-        fileURL = models.CharField(max_length=200)
+        fileURL = models.CharField(max_length=200, db_index = True)
         idInType = models.IntegerField()
 
         def save(self, *args, **kwargs):
@@ -128,7 +127,7 @@ class UserForm(ModelForm):
 
 class QuestionObject(models.Model):
 	# need to change FBFriend1 to a comma seperated value for product 1, FBFriend2 list of people who voted for product 2
-	toUser = models.ForeignKey(User, related_name = "qo_to_user")
+	toUser = models.ForeignKey(User, related_name = "qo_to_user", db_index = True)
 	aboutFriend = models.CharField(max_length=200)
 	aboutFriendName = models.CharField(max_length = 200)
 	product1 = models.ForeignKey(Product, related_name = 'qo_product1')
@@ -147,7 +146,7 @@ class QuestionObject(models.Model):
 
 class FeedObject(models.Model):
 	# need to change FBFriend1 to a comma seperated value for product 1, FBFriend2 list of people who voted for product 2
-	forUser = models.CharField(max_length=200)
+	forUser = models.CharField(max_length=200, db_index = True)
 #	forUser = models.ForeignKey(User, related_name = 'forUser')
 	product1 = models.ForeignKey(Product, related_name = 'fo_product1')
 	image1 = models.CharField(max_length=200)
@@ -172,7 +171,7 @@ class FeedObject(models.Model):
 
 class Answer(models.Model):
 	fromUser = models.ForeignKey(User)
-	forFacebookId = models.CharField(max_length=200)
+	forFacebookId = models.CharField(max_length=200, db_index = True)
 	chosenProduct = models.ForeignKey(Product, related_name = 'chosenProduct')
 	wrongProduct = models.ForeignKey(Product, related_name = 'wrongProduct')
 	question = models.ForeignKey(Question, related_name = 'question')
@@ -214,7 +213,7 @@ class Answer(models.Model):
 ############# USER GENERATED MODELS #################################################################
 class UserGeneratedProduct(models.Model):
         on = models.BooleanField(default=True)
-        fileURL = models.CharField(max_length=200)
+        fileURL = models.CharField(max_length=200, db_index = True)
         user = models.ForeignKey(User)
         description = models.CharField(max_length=200, null=True)
 	def __unicode__(self):
@@ -222,7 +221,7 @@ class UserGeneratedProduct(models.Model):
 
 
 class UserGeneratedQuestion(models.Model):
-	user = models.ForeignKey(User)
+	user = models.ForeignKey(User, db_index = True)
 	text = models.TextField()
 	on = models.BooleanField(default=True)
 	fbFriend1 = ListField(blank=True)
@@ -236,7 +235,7 @@ class UserGeneratedQuestion(models.Model):
 
 
 class QuestionQueue(models.Model):
-	toUser = models.ForeignKey(User, related_name = "to_user")
+	toUser = models.ForeignKey(User, related_name = "to_user", db_index = True)
 	byUser = models.ForeignKey(User, related_name = "by_user")
 	question = models.ForeignKey(UserGeneratedQuestion)
 	on = models.BooleanField(default = True)
@@ -244,7 +243,7 @@ class QuestionQueue(models.Model):
 
 class UserGeneratedAnswer(models.Model):
 	fromUser = models.ForeignKey(User, related_name = "from_user")
-	forUser = models.ForeignKey(User, related_name = "for_user")
+	forUser = models.ForeignKey(User, related_name = "for_user", db_index = True)
 	chosenUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "chosen_user_gen_products")
 	wrongUGProduct = models.ForeignKey(UserGeneratedProduct, related_name = "wrong_user_gen_product")
 	question = models.ForeignKey(UserGeneratedQuestion)
@@ -266,14 +265,14 @@ class UserGeneratedAnswer(models.Model):
 ############# TRAINING MODELS ###############################################################################
 
 class TrainingProductType(models.Model):
-	text = models.CharField(max_length=200)
+	text = models.CharField(max_length=200, unique = True)
 	def __unicode__(self):
 		return str(self.text)
 
 class TrainingProduct(models.Model):
 	on = models.BooleanField(default=True)
 	type = models.ForeignKey(TrainingProductType)
-	fileURL = models.CharField(max_length=200)
+	fileURL = models.CharField(max_length=200, db_index=True)
 	description= models.TextField(null=True)
 	def __unicode__(self):
 		return str(self.fileURL)
@@ -286,7 +285,7 @@ class TrainingQuestion(models.Model):
 		return str(self.text)
 
 class TrainingAnswer(models.Model):
-	user = models.ForeignKey(User)
+	user = models.ForeignKey(User, db_index=True)
 	wrongProduct = models.ForeignKey(TrainingProduct, related_name="t_wrong_product")
 	chosenProduct = models.ForeignKey(TrainingProduct, related_name="t_chosen_product")
 	question = models.ForeignKey(TrainingQuestion, related_name="t_question")
