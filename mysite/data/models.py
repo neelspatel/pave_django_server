@@ -37,7 +37,7 @@ class ListField(models.TextField):
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
-        return self.get_db_prep_value(valuei)
+        return self.get_db_prep_value(value)
 
 class User(models.Model):
         facebookID = models.CharField(max_length=200, primary_key=True)
