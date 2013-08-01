@@ -96,7 +96,7 @@ def getUGQuestionsList(request, user_id):
 #		product2_filename = q.product2.fileURL
 		left_product = q.product1
 		right_product = q.product2
-		if q.product_1_count < q.product_2_count:
+		if q.product1_count < q.product2_count:
 			left_product = q.product2
 			right_product = q.product1
 		data.append({
