@@ -94,13 +94,17 @@ def getUGQuestionsList(request, user_id):
 
 #		product1_filename = q.product1.fileURL
 #		product2_filename = q.product2.fileURL
-
+		left_product = q.product1
+		right_product = q.product2
+		if q.product_1_count < q.product_2_count:
+			left_product = q.product2
+			right_product = q.product1
 		data.append({
 					"question_text": q.text,
 					"fbFriend1": q.fbFriend1,
 					"fbFriend2": q.fbFriend2,
-					"product_1": q.product1.id,
-					"product_2": q.product2.id,
+					"product_1": left_product.id,
+					"product_2": right_product.id,
 					"product_1_count": q.product1_count,
 					"product_2_count": q.product2_count,
 					"product_1_url": product1_filename,

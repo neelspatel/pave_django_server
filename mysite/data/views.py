@@ -974,9 +974,13 @@ def agreeWithAnswer(request, user_id):
 		chosen_product_id = request.POST["id_chosenProduct"]
 		wrong_product_id = request.POST["id_wrongProduct"]
 		question_id = request.POST["id_question"]
-
+		
 		notif_utils.updateStatusScore(from_user, "answer_recieved")
 	
+		# if the answer existed before, delete it 
+		Answer.objects.filter(fromUser=from_user).filter(forFacebookId = forFacebookId).filter(chosenProduct=chosen_product_id).filter(wrongProduct = wrong_product_id).delete()
+		Answer.objects.filter(fromUser=from_user).filter(forFacebookId = forFacebookId).filter(wrongProduct=chosen_product_id).filter(chosenProduct = wrong_product_id).delete()
+		
 		obj = Answer.objects.create(
 			fromUser = from_user,
 			forFacebookId = forFacebookId,
