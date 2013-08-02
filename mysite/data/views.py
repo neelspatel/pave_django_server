@@ -511,7 +511,7 @@ def newGetListQuestions(request, user_id):
 	
 	
 	list_question_objects = []
-	for q in questions:
+	for q in questions[:10]:
 		# determine if q is user_generated
 		if type(q) == QuestionObject:		
 			p1_url = PRODUCT_IMAGES_BASE_URL + q.image1
