@@ -61,7 +61,8 @@ def updateRecVector(user_id):
 		notif.last_rec_update = datetime.datetime.now()
 		notif.save()
 		return True
-	else:	
+	else:
+		notif.is_ready = False	
 		notif.last_rec_update = datetime.datetime.now()
 		notif.save()
 		return False
@@ -85,7 +86,6 @@ def getRecList(request, user_id):
 
 @csrf_exempt
 def getNewRec(request, user_id):
-#	return HttpResponse(json.dumps({"url": "https://s3.amazonaws.com/pave_training_images/Emma-Watson.jpg", "text": "TEST REC"}), mimetype="application/json")
 	new_rec_iterator = Recommendation.objects.filter(user=user_id).filter(delivered=False)
 	if (not new_rec_iterator):
 		# get something from feel good rec
@@ -93,7 +93,12 @@ def getNewRec(request, user_id):
 	new_rec = new_rec_iterator[0]
 	new_rec.delivered = True
 	new_rec.save()
-	#return HttpResponse(json.dumps({"url": "www.google.com", "text": "THIS IS ONE FOR GOOGLE"}), mimetype="application/json")
+
+	# update the notification object for the user
+	notif = Notification.objects.get(user = user_id)
+	notif.is_ready = False
+	notif.save()
+
 	return HttpResponse(json.dumps({"url": new_rec.rec.url, "text": new_rec.rec.text}), mimetype="application/json")
 
 @csrf_exempt

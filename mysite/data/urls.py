@@ -44,10 +44,14 @@ urlpatterns = patterns('',
 	#v1.1
 	url(r'^createuser', views.createUser, name = 'createuser'),
 	url(r'^updateuser/(?P<user_id>\w+)/$', views.updateUser, name = 'updateuser'),
-	
+
+	# BATCH CREATE CONTENT	
 	url(r'batchcreateproducts', views.batchCreateProducts, name = 'batchcreateproducts'),
 	url(r'batchcreateanswers', views.batchCreateAnswers, name = 'batchcreateanswers'),
 	url(r'batchcreatequestions', views.batchCreateQuestions, name = 'batchcreatequestions'),
+	url(r'batchcreateproducttypes', views.batchCreateProductTypes, name = 'batchcreateproducttypes'),
+	url(r'batchdeleteproducts', views.batchDeleteProducts, name = 'batchdeleteproducts'),
+
 	url(r'^getfeedobject/(?P<feed_object_id>\w+)/$', views.getFeedObject, name='getfeedobject'),
 	url(r'^getuser/(?P<user_id>\w+)/$', views.getUser, name='getuser'),
 	url(r'^getallfeedobjects/(?P<user_id>\w+)/$', views.getAllFeedObjects, name='getallfeedbackobjects'),

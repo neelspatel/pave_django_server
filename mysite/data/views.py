@@ -139,8 +139,7 @@ def rebase(request):
 
 @csrf_exempt
 def index(request):
-	a = pickle.load(open("test.p", 'rb'))
-	return HttpResponse("Hey, you're at the index for views in data " + str(a["data"]))
+	return HttpResponse("Hey, you're at the index for views in data ") 
 
 @csrf_exempt
 def numberOfNewObjects(request, user_id, time_since):
@@ -235,14 +234,24 @@ def getTrendingObjects(request, user_id):
 
 @csrf_exempt
 def getAllAnswers(request, user_id):
+	def get_answer_attr(answer):
+		return { "question": answer.question.text,
+			"questionID": answer.question.id,
+			"friend": answer.fromUser.pk,
+			"chosenProduct": PRODUCT_IMAGES_BASE_URL + answer.chosenProduct.fileURL,
+			"otherProductID": answer.wrongProduct.id,
+			"chosenProductID":answer.chosenProduct.id,
+			"otherProduct":PRODUCT_IMAGES_BASE_URL + answer.wrongProduct.fileURL 
+		}
 	#first thing is get the current user
 #	current_user = User.objects.get(pk=user_id)
 	
 	#now get all answers for that user
-	all_answers = Answer.objects.prefetch_related().filter(forFacebookId = user_id)
-
+	all_answers = Answer.objects.select_related("question", "chosenProduct", "wrongProduct").filter(forFacebookId = user_id)
+	
+	to_return = [get_answer_attr(answer) for answer in all_answers]
 	#now just return all of those answers
-	response = HttpResponse(serializers.serialize("json", list(all_answers)), mimetype='application/json')
+	response = HttpResponse(json.dumps(to_return), mimetype='application/json')
         response["Access-Control-Allow-Origin"] = "*"
         response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
         response["Access-Control-Max-Age"] = "1000"
@@ -1066,17 +1075,13 @@ def newAnswer(request):
         return HttpResponse("Not a POST request")
 
 @csrf_exempt
-def batchCreateQuestions(request):
-	if request.method == "POST":
-		allQuestions = json.loads(request.POST["data"])
-		for currentRow in allQuestions:
-			p_type = ProductType.objects.get(text=currentRow["type"])
-			if p_type:
-				obj = Question.objects.get_or_create(
-					type = p_type,
-					text = currentRow["text"],
-					on=True
-				)
+def batchCreateProductTypes(request):
+	if request.method == 'POST':
+		allProductTypes = json.loads(request.POST["data"])
+		for currentRow in allProductTypes:
+			p_count = ProductType.objects.filter(text = currentRow["type"]).count()
+			if p_count == 0:
+				p_type = ProductType.objects.create(count = 0, text=currentRow["type"])
 		response = HttpResponse(len(json.loads(request.POST["data"])), mimetype='application/json')
 		response["Access-Control-Allow-Origin"] = "*"
 		response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
@@ -1084,6 +1089,36 @@ def batchCreateQuestions(request):
 		response["Access-Control-Allow-Headers"] = "*"
 		return response
 	return HttpResponse("Request was not a POST")
+
+@csrf_exempt
+def batchCreateQuestions(request):
+	if request.method == "POST":
+		allQuestions = json.loads(request.POST["data"])
+		for currentRow in allQuestions:
+			p_type = ProductType.objects.get(text=currentRow["type"])
+			if p_type:
+				obj, created = Question.objects.get_or_create(
+					type = p_type,
+					text = currentRow["text"],
+					on=True
+				)
+				
+		response = HttpResponse(len(json.loads(request.POST["data"])), mimetype='application/json')
+		response["Access-Control-Allow-Origin"] = "*"
+		response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+		response["Access-Control-Max-Age"] = '1000'
+		response["Access-Control-Allow-Headers"] = "*"
+		return response
+	return HttpResponse("Request was not a POST")
+
+@csrf_exempt
+def batchDeleteProducts(request):
+	if request.method == "POST":
+		allProducts = json.loads(request.POST['data'])
+		for currentRow in allProducts:
+			products=  Product.objects.filter(fileURL=currentRow['filename'])
+			products.delete()
+		return HttpResponse("deleted")	
 
 @csrf_exempt
 def batchCreateProducts(request):
@@ -1095,16 +1130,21 @@ def batchCreateProducts(request):
 	debug["Access-Control-Max-Age"] = '1000'
 	debug["Access-Control-Allow-Headers"] = "*"
 	if request.method == "POST":
+		attributes = []
 		allProducts = json.loads(request.POST['data'])
 		for currentRow in allProducts:
 			product_type = ProductType.objects.get(text = currentRow['type'])
 			if product_type:
-				obj = Product.objects.get_or_create(
+				obj, _ = Product.objects.get_or_create(
 					type = product_type,
 					description = currentRow["description"],
 					fileURL = currentRow['filename'],
 					idInType = 0
 				)
+				attributes.append({"id": obj.id, "attributes": currentRow["attributes"]})
+		url = "http://ec2-54-218-218-2.us-west-2.compute.amazonaws.com/data/uploadproducts/"
+		r = requests.post(url, data = {"data": json.dumps(attributes)})
+		return HttpResponse(r.text)
 		response = HttpResponse(len(json.loads(request.POST['data'])), mimetype = 'application/json')
 		response["Access-Control-Allow-Origin"] = "*"
 		response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
@@ -1237,7 +1277,7 @@ def updateUser (request, user_id):
                 return response
 	return HttpResponse("Not a POST")
 
-@csrf_exempt 
+@csrf_exempt
 def createUser(request):
 	if request.method == 'POST':
 		access_token = request.POST["access_token"]
@@ -1286,6 +1326,7 @@ def createUser(request):
 
 		url = ANALYSIS_SERVER_URL + "adduser/"
 		post_data = {"user_id": facebook_id, "gender": profile["gender"], "age": profile["birthday"]}
+		
 		# send data over to analysis server to process
 		r = requests.post(url, data=post_data)
 	
